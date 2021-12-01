@@ -1,0 +1,25 @@
+
+{% extends 'layout.html' %}
+{% block content %}
+
+{% if frida_logs == "error" %}
+Error processing Kafka data. Is kafka running and frida started with &quot;Report to Kafka&quot; checked?<br />
+
+{% else %}
+  <table class="table">
+    <thead>
+    <tr><th>Application</th><th>Type</th><th>Value</th></tr>
+    </thead>
+    <tbody>
+    {% for log_entry in frida_logs %}
+      <tr>
+        <td>{{ application }}</td>
+        <td>{{ log_entry.type }}</td>
+        <td>{{ log_entry.payload }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% endblock %}

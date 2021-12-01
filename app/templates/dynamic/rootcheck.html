@@ -1,0 +1,41 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+            <div class="card-header">
+                Initial connection
+            </div>
+            <div class="card-body" id="connection">
+                Checking root access, please accept any visible root access popup and always grant root access to adb.
+                <hr />
+                <span class="text-info" id="root_result">
+                    Waiting for root confirmation
+                    <i class="fas fa-spinner fa-spin"></i>
+                </span>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block subscripts %}
+    <script>
+        function start_remote() {
+            $.getJSON("{{ url_for('adb_check_root_access_su', device_uuid=device_uuid, device_type=device_type) }}", function(result){
+                if(!result.status) {
+                    $("#root_result").html("Error checking root access, did you select the right strategy?");
+                } else {
+                    $("#root_result").removeClass("text-info");
+                    $("#root_result").addClass("text-success");
+                    $("#root_result").html("Root access confirmed!");
+
+                    setTimeout(function(){
+                        document.location = '{{ url_for('dynamic_dashboard', device_type=device_type, device_uuid=device_uuid) }}';
+                    }, 2000);
+                }
+            });
+        }
+    start_remote();
+    </script>
+{% endblock %}

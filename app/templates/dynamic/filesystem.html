@@ -1,0 +1,83 @@
+{% extends 'layout.html' %}
+{% block styles %}
+<link href="/static/css/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/static/highlight.js/styles/default.min.css">
+{% endblock %}
+{% block content %}
+<div class="row mt-2">
+    <div class="col-lg-4">
+        <div id="tree"></div>
+    </div>
+    <div class="col-lg-8">
+        <div id="source"></div>
+    </div>
+</div>
+
+{% endblock %}
+{% block subscripts %}
+<script src="/static/highlight.js/highlight.min.js"></script>
+<script src="/static/js/jquery.fancytree-all-deps.min.js"></script>
+<script>
+
+var filesystem = {{ fs | safe }};
+result = [];
+
+filesystem.reduce((r, path) => {
+   path.split('/').reduce((o, title) => {
+      var temp = (o.children = o.children || []).find(q => q.title === title);
+      if(o.children) o["folder"] = true;
+      if (!temp) o.children.push(temp = {
+         title
+      });
+      return temp;
+   }, r);
+   return r;
+}, {
+   children: result
+});
+
+$("#tree").fancytree({
+  source: result,
+  icon:true,
+  clickFolderMode: 2,
+  activate: function(event, data){
+    var node = data.node;
+    var create_path = [];
+    while(1) {
+        if(node.title == "root") break;
+        create_path.push(node.title);
+        node = node.parent;
+    }
+    create_path.reverse();
+    var new_path = create_path.join("/");
+    var enc = encodeURIComponent(new_path);
+    $.getJSON("{{ url_for('get_dynamic_file', application=application) }}?file=" + enc, function(data) {
+        on_source_load(data);
+    });
+  },
+  beforeSelect: function(event, data){
+    if( data.node.isFolder() ){
+      return false;
+    }
+  }
+});
+
+function on_source_load(source_data) {
+    $('#source').html('<pre><code>' + $("<div>").text(source_data.data).html() + '</code></pre>');
+    hljs.highlightAll();
+    window.scrollTo(0,0);
+}
+
+$(document).ready(function(){
+    {% if selected_vuln %}
+       $.getJSON("{{ url_for('get_raw_file', app_id=app_id) }}?file={{ selected_vuln.filename | urlencode }}", function(data) {
+            on_source_load(data);
+                hljs.highlightLinesAll([
+                    [{start: {{ selected_vuln.file_line }}, end: {{ selected_vuln.file_line + 1 }}, color: 'yellow'}]
+                ]);
+        });
+    {% endif %}
+});
+
+</script>
+{% endblock %}

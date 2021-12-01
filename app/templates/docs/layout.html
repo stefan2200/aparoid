@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Free bootstrap documentation template">
+    <title>Aparoid - Documentation</title>
+    <link rel="stylesheet" href="/static/css/all.css">
+    <link rel="stylesheet" href="/static/css/jquery.mCustomScrollbar.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/docs.css">
+    <link rel="shortcut icon" type="image/png" href="img/favicon.png" /> </head>
+
+<body>
+    <div class="page-wrapper toggled light-theme">
+        <nav id="sidebar" class="sidebar-wrapper">
+            <div class="sidebar-content">
+                <div class="sidebar-item sidebar-brand text-white font-weight-bold">Documentation</div>
+
+                <div class=" sidebar-item sidebar-menu">
+                    <ul>
+                        <li class="header-menu"> <span>Usage</span> </li>
+                        <li class="sidebar-dropdown">
+                            <a href="#"> <i class="fa fa-atlas"></i>
+                                Getting started
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li> <a href="{{ url_for('documentation_getting_started') }}#installing">Installation</a> </li>
+                                    <li> <a href="{{ url_for('documentation_getting_started') }}#optional">Optional utilities</a> </li>
+                                    <li> <a href="{{ url_for('documentation_getting_started') }}#updating">Updating</a> </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="sidebar-dropdown">
+                            <a href="#"> <i class="fab fa-android"></i>
+                                Dynamic analysis
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li> <a href="{{ url_for('documentation_dynamic') }}#devices">Choosing a test device</a> </li>
+                                    <li> <a href="{{ url_for('documentation_dynamic') }}#requirements">Checking requirements</a> </li>
+                                </ul>
+                            </div>
+                        </li>
+                        <!--<li class="sidebar-dropdown">
+                            <a href="#"> <i class="fa fa-code"></i>
+                                API
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li> <a href="#">Documentation</a> </li>
+                                    <li> <a href="#">Extending the API</a> </li>
+                                </ul>
+                            </div>
+                        </li>-->
+                        <li class="sidebar-dropdown">
+                            <a href="#"> <i class="fa fa-bug"></i>
+                                Troubleshooting
+                            </a>
+                            <div class="sidebar-submenu">
+                                <ul>
+                                    <li> <a href="{{ url_for('documentation_troubleshooting') }}#dynamic">Dynamic analysis issues</a> </li>
+                                    <li> <a href="{{ url_for('documentation_troubleshooting') }}#issue">Create a GitHub issue</a> </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <!-- sidebar-menu  -->
+            </div>
+        </nav>
+        <!-- page-content  -->
+        <main class="page-content">
+            <div id="overlay" class="overlay"></div>
+            <div class="container-fluid">
+                <div class="row d-flex align-items-center p-3 border-bottom">
+                    <div class="col-md-1">
+                        <a id="toggle-sidebar" class="btn rounded-0 p-3" href="#"> <i class="fas fa-bars"></i> </a>
+                    </div>
+                    <div class="col-md-8">
+                        <nav aria-label="breadcrumb" class="align-items-center">
+                            <a href="index.html" class="breadcrumb-back" title="Back"></a>
+                            <ol class="breadcrumb d-none d-lg-inline-flex m-0">
+                                <li class="breadcrumb-item"><a href="{{ url_for('documentation_root') }}">Aperoid</a></li>
+                                <li class="breadcrumb-item active" aria-current="page">{{ sub }}</li>
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+                <div class="row p-lg-4">
+                    <article class="main-content col-md-12 pr-lg-5">
+                        {% block content %} {% endblock %}
+                    </article>
+                </div>
+            </div>
+        </main>
+        <!-- page-content" -->
+    </div>
+    <!-- page-wrapper -->
+    <!-- using online scripts -->
+    <script src="/static/js/jquery.min.js"></script>
+    <script src="/static/js/popper.min.js"></script>
+    <script src="/static/js/bootstrap.min.js"></script>
+    <script src="/static/js/jquery.mCustomScrollbar.concat.min.js"></script>
+    <script src="/static/highlight.js/highlight.min.js"></script>
+    <script src="/static/js/docs.js"></script>
+</body>
+
+</html>

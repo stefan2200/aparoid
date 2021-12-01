@@ -1,0 +1,207 @@
+{% extends 'layout.html' %}
+{% block styles %}
+<link href="/static/css/ui.fancytree.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="/static/highlight.js/styles/github-dark.min.css">
+{% endblock %}
+{% block content %}
+{% include 'topmenu.html' %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card" id="form-groups">
+                <div class="card-header" id="headingOne">
+                  <h2 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                      Search code
+                    </button>
+                  </h2>
+                </div>
+                <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#form-groups">
+                    <div class="card-body">
+                        <form >
+                      <div class="form-group">
+                        <label for="keyword">Keyword</label>
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <div class="input-group-text">
+                              <i class="fa fa-code"></i>
+                            </div>
+                          </div>
+                          <input id="keyword" name="keyword" placeholder="Search keyword" type="text" class="form-control">
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <label>Search type</label>
+                        <div>
+                          <div class="custom-controls-stacked">
+                            <div class="custom-control custom-radio">
+                              <input name="search_type" id="search_type_0" type="radio" class="custom-control-input" value="classes">
+                              <label for="search_type_0" class="custom-control-label">Classes</label>
+                            </div>
+                          </div>
+                          <div class="custom-controls-stacked">
+                            <div class="custom-control custom-radio">
+                              <input name="search_type" id="search_type_1" type="radio" class="custom-control-input" value="code">
+                              <label for="search_type_1" class="custom-control-label">Code</label>
+                            </div>
+                          </div>
+                          <div class="custom-controls-stacked">
+                            <div class="custom-control custom-radio">
+                              <input name="search_type" id="search_type_2" type="radio" class="custom-control-input" value="resources">
+                              <label for="search_type_2" class="custom-control-label">Resources</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="form-group">
+                        <button name="submit" type="submit" class="btn btn-primary">Search</button>
+                      </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-3">
+            <div id="tree"></div>
+        </div>
+        <div class="col-lg-9">
+            <div id="source"></div>
+        </div>
+    </div>
+<div class="modal fade" id="code-patcher" tabindex="-1" role="dialog" aria-labelledby="patcher-title" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="patcher-title">Automatic Patcher</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <pre id="patcher-data"></pre>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block subscripts %}
+<script src="/static/highlight.js/highlight.min.js"></script>
+<script src="/static/js/highlightjs-highlight-lines.min.js"></script>
+<script src="/static/js/jquery.fancytree-all-deps.min.js"></script>
+
+<script>
+var filesystem = {{ fs | safe }};
+result = [];
+
+filesystem.reduce((r, path) => {
+   path.split('/').reduce((o, title) => {
+      var temp = (o.children = o.children || []).find(q => q.title === title);
+      if(o.children) o["folder"] = true;
+      if (!temp) o.children.push(temp = {
+         title
+      });
+      return temp;
+   }, r);
+   return r;
+}, {
+   children: result
+});
+var selected_file = null;
+$("#tree").fancytree({
+  source: result,
+  icon:true,
+  clickFolderMode: 2,
+  activate: function(event, data){
+    var node = data.node;
+    var create_path = [];
+    while(1) {
+        if(node.title == "root") break;
+        create_path.push(node.title);
+        node = node.parent;
+    }
+    create_path.reverse();
+    var new_path = create_path.join("/");
+    var enc = encodeURIComponent(new_path);
+    $.getJSON("{{ url_for('get_raw_file', app_id=app_id) }}?file=" + enc, function(data) {
+        selected_file = enc;
+        on_source_load(data);
+    });
+  },
+  beforeSelect: function(event, data){
+    if( data.node.isFolder() ){
+      return false;
+    }
+  }
+});
+
+function on_source_load(source_data) {
+    $('#source').html('<pre><code>' + $("<div>").text(source_data.data).html() + '</code></pre>');
+    hljs.highlightAll();
+    window.scrollTo(0,0);
+    init_hooks();
+}
+
+function init_hooks() {
+    var find_functions = $("span.hljs-title");
+    $.each(find_functions, function(key, func) {
+        $(func).hover(function() {
+            $(this).css('cursor','pointer').attr('title', 'Click to see patch options');
+        }, function() {
+            $(this).css('cursor','auto');
+        });
+        $(func).click(function() {
+            patcher($(func).text());
+        });
+    });
+}
+
+function patcher(selected_method) {
+    var arguments = "?file="+selected_file+"&method="+selected_method;
+    var base_url = "{{ url_for('get_patch_options', app_id=app_id) }}";
+    var new_url = base_url + arguments;
+    $.getJSON(new_url, function(data) {
+        if(data.status) {
+            $("#patcher-data").text(data.patch);
+        } else {
+            $("#patcher-data").text("Unable to automatically create patch.");
+        }
+        $("#code-patcher").modal();
+    });
+}
+
+$(document).ready(function(){
+    {% if selected_vuln %}
+       $.getJSON("{{ url_for('get_raw_file', app_id=app_id) }}?file={{ selected_vuln.filename | urlencode }}", function(data) {
+            on_source_load(data);
+            hljs.highlightLinesAll([
+                [{start: {{ selected_vuln.file_line }}, end: {{ selected_vuln.file_line }}, color: 'yellow'}]
+            ]);
+            go_to($("div[style*='yellow']"));
+        });
+    {% endif %}
+});
+
+function go_to(el) {
+  var elOffset = el.offset().top;
+  var elHeight = el.height();
+  var windowHeight = $(window).height();
+  var offset;
+
+  if (elHeight < windowHeight) {
+    offset = elOffset - ((windowHeight / 2) - (elHeight / 2));
+  }
+  else {
+    offset = elOffset;
+  }
+  var speed = 500;
+  $('html, body').animate({scrollTop:offset}, speed);
+
+}
+
+</script>
+{% endblock %}

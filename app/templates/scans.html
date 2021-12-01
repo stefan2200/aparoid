@@ -1,0 +1,48 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    Scanned applications
+                </div>
+                <div class="card-body">
+                        {% for item in scans %}
+                                <div class="card">
+                                    <div class="card-horizontal" style="display: flex; flex: 1 1 auto;">
+                                        <div class="img-square-wrapper">
+                                            <img class="" style="width: 100px; height: 100px;" src="data:image/png;base64, {{ item.icon }}" alt="Package icon">
+                                        </div>
+                                        <div class="card-body">
+                                            <h4 class="card-title">
+                                                <a href="{{ url_for('get_apk_dashboard', app_id=item.checksum) }}">{{ item.name }}</a>
+                                            </h4>
+                                            <p class="card-text">
+                                                Version: {{ item.version_name }} ({{ item.version_code }})
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="card-footer">
+                                        <a href="#" onclick="remove_for('{{ item.checksum }}')"><i class="fas fa-trash text-danger"></i></a>
+                                    </div>
+                                </div>
+                        {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block subscripts %}
+<script>
+    function remove_for(checksum) {
+        var url = "{{ url_for('remove_scanned_apk', app_id=":checksum") }}";
+        var sendurl = url.replace(":checksum", checksum);
+        if(confirm("Are you sure you wish to remove all files, findings and data related to this application?")) {
+            document.location = sendurl;
+        }
+    }
+</script>
+
+{% endblock %}

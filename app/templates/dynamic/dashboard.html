@@ -1,0 +1,113 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mt-2">
+    <div class="col-lg-3" style="word-wrap: break-word;">
+        <h4>Device - {{ device_uuid }}</h4>
+        <hr />
+        <strong>ID</strong>
+        {{ device.id }}
+        <br />
+        <strong>Kernel</strong>
+        {{ device.kernel }}
+        <br />
+        <strong>Arch</strong>
+        {{ device.arch }}
+        <br />
+        <strong>Android</strong>
+        {{ device.android }} SDK {{ device.sdk }}
+    </div>
+    <div class="col-lg-6 text-wrap">
+        <h4>Frida</h4>
+        {% if device_type == "systemless" %}
+            {% if frida_open %}
+                {% include 'dynamic/frida.html' %}
+            {% else %}
+                <p>Please install the "MagiskFrida" and "Move Certificates" modules using the Magisk manager and reboot the device.</p>
+            {% endif %}
+        {% else %}
+            {% if not device.frida_installed %}
+                <p class="text-danger">Frida is not yet installed</p>
+                <button onclick="install_frida();" class="btn btn-success">Install</button>
+            {% elif device.frida_installed != local_frida_version %}
+                <p class="text-warning">Frida ({{ device.frida_installed }}) is installed but does not match the local version {{ local_frida_version }}</p>
+                <button onclick="install_frida();" class="btn btn-success">Install {{ local_frida_version }}</button>
+            {% elif not device.frida_running %}
+                <p class="text-warning">Frida ({{ device.frida_installed }}) is installed but not running</p>
+                <button onclick="start_frida();" class="btn btn-success">Start</button>
+            {% else  %}
+                <p class="text-success">Frida {{ local_frida_version }} is installed and running</p>
+                {% include 'dynamic/frida.html' %}
+            {% endif %}
+        {% endif %}
+    </div>
+    <div class="col-lg-3">
+        <h4>Available applications</h4>
+        <hr >
+        <div class="form-group row">
+            <div class="col-md-8">
+                <select id="apk" class="form-control">
+                    {% for get_app in additional_applications %}
+                        <option value="{{ get_app.id }}">{{ get_app.name }} ({{ get_app.version_name }})</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="button" onclick="install_application()" class="btn btn-info">Install</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block subscripts %}
+<script>
+    function install_application() {
+        var application_id = $("#apk").val();
+        var start_url = '{{ url_for('install_application_on_device', device_type=device_type, device_uuid=device_uuid, application_id="x-application-x") }}';
+        var start = start_url.replace("x-application-x", application_id);
+        $.getJSON(start, function(data){
+            if(!data.status) {
+                alert(data.error);
+            } else { window.location.reload(); }
+        });
+    }
+    function install_frida() {
+        $.getJSON('{{ url_for('install_frida_for_device', device_type=device_type, device_uuid=device_uuid) }}', function(data){
+            if(!data.status) {
+                alert("Unable to install frida using the selected strategy. Please consult the application logs for more details");
+            } else { window.location.reload(); }
+        });
+    }
+    function start_frida() {
+        $.getJSON('{{ url_for('start_frida_for_device', device_type=device_type, device_uuid=device_uuid) }}', function(data){
+            if(!data.status) {
+                alert("Unable to install frida using the selected strategy. Please consult the application logs for more details");
+            } else { window.location.reload(); }
+        });
+    }
+    function frida_spawn(application) {
+        var start_url = '{{ url_for('frida_spawn_application', device_uuid=device_uuid, application="x-application-x") }}';
+        var start = start_url.replace("x-application-x", application);
+        $.getJSON(start, function(data){
+            if(!data.status) {
+                alert(data.error);
+            } else {
+                window.location.reload();
+            }
+        });
+    }
+
+    function frida_kill(application) {
+        var start_url = '{{ url_for('frida_kill_application', device_uuid=device_uuid, application="x-application-x") }}';
+        var start = start_url.replace("x-application-x", application);
+        $.getJSON(start, function(data){
+            if(!data.status) {
+                alert(data.error);
+            } else {
+                window.location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}

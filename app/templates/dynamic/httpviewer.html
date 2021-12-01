@@ -1,0 +1,65 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row mt-2">
+    <div class="col-lg-4">
+        <div class="card-group">
+            {% for host in request_pool %}
+            <div class="row col-lg-12">
+            <div class="card card-default">
+                <div class="card-header">
+                    <p class="card-title" style="width: 28rem;">
+                        <a data-toggle="collapse" href="#host-{{ host | replace(".","-") }}">{{ host }} ({{ request_pool[host] | count }})</a>
+                        <a href="{{ url_for('delete_http_requests', application=application, host=host) }}" class="float-right"><i class="fas fa-trash-alt text-danger"></i> </a>
+                    </p>
+                </div>
+                <div id="host-{{ host  | replace(".","-") }}" class="card-collapse {% if not selected or selected.host != host %}collapse{% endif %}">
+                    <div class="list-group">
+                        {% for req in request_pool[host] %}
+                        <li class="list-group-item {% if selected and selected.id == req.id %}list-group-item-info{% endif %}">
+                            <a href="{{ url_for('get_http_request_id', request_id=req.id) }}">
+                                {{ req.request[0:50] }}...
+                                {% if req.findings %}
+                                    <i class="fas fa-exclamation text-info"></i>
+                                {% endif %}
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div></div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-lg-8">
+        {% if selected %}
+            {% if selected.findings | count > 0 %}
+               <table class="table">
+                    <thead>
+                    <tr>
+                        <th colspan="3">Findings</th>
+                    </tr>
+                    </thead>
+                   <tbody>
+                       {% for finding in selected.findings %}
+                       <tr>
+                        <td>Severity: {{ finding.severity }}</td>
+                        <td>{{ finding.name }}</td>
+                        <td>{{ finding.text }}</td>
+                           </tr>
+                       {% endfor %}
+                   </tbody>
+               </table>
+                <hr >
+             {% endif %}
+            <strong>Request to: {{ selected.host }}</strong>
+            <pre class="request-wrap">{{ selected.request }}</pre>
+            <hr />
+            <strong>Response from: {{ selected.host }}</strong>
+            <pre class="request-wrap">{{ selected.response }}</pre>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

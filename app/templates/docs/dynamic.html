@@ -1,0 +1,76 @@
+{% extends 'docs/layout.html' %}
+
+{% block content %}
+<h1 class="mb-2 mt-3">Dynamic Analysis</h1>
+<p class="lead mb-3">This chapter will help you choose and set up an emulated or physical testing device.</p>
+
+<h3 class="font-weight-bold mb-2" id="devices">
+    Choosing a test device
+</h3>
+
+<p>Aparoid dynamic analysis can work on the following types of devices</p>
+<ul>
+    <li>Devices rooted using Magisk (requires third-party modules)</li>
+    <li>Emulated devices (Android Studio AVD, Genymotion, Bluestacks and probably more)</li>
+    <li>Devices running Android <= 9.0 (a.k.a. system root)</li>
+    <li>Virtual devices running in the cloud</li>
+</ul>
+
+<p>It is up to you what kind of device you want to use.
+    In my opinion, emulated devices work just fine.
+    They do however lack access to certain hardware like a fully functioning camera, Wi-Fi hotspot mode, Bluetooth and various sensors.
+</p>
+
+<div class="alert alert-primary d-flex justify-content-start align-items-center" role="alert"> <span class="fa fa-info mr-4"></span>
+    <p class="m-0">
+        <strong>Disclaimer!</strong> Aparoid installs a certificate authority on the testing device.
+        Please be aware that this certificate can also intercept information from banking apps, websites and applications containing personal information.
+        It is not recommended to use dynamic analysis on devices not meant for testing purposes.
+    </p>
+</div>
+
+<h3 class="font-weight-bold mb-2" id="requirements">
+    Device Requirements
+</h3>
+<p>
+    For Aparoid to function the device must be rooted and have remote debugging enabled.
+    For more information on how to set up the Android Debugging Bridge please consult the
+    <a href="https://developer.android.com/studio/command-line/adb">Android developer documentation</a>.
+</p>
+    <br />
+    The steps below will help you check if your device is configured to work with Aparoid dynamic analysis.
+    <ul>
+        <li>Connect the device to your computer using a USB cable.
+        <br />
+        <span class="text-info">For wireless usage or cloud instances please go through the secondary steps below before proceeding.</span> </li>
+        <li>Open a terminal on your local system and enter <pre><code>adb wait-for-device</code></pre></li>
+        <li>If the adb program keeps hanging please check if you have working adb drivers installed. The following installer works in most cases:
+            <a href="https://forum.xda-developers.com/t/official-tool-windows-adb-fastboot-and-drivers-15-seconds-adb-installer-v1-4-3.2588979/">15 seconds ADB Installer</a>
+        </li>
+        <li>If a pop-up appears on your device please select the <span class="text-info">Always allow from this computer</span> option before proceeding.</li>
+        <li>Run the following command and accept any root access pop-up: <pre><code>adb shell su -c id</code></pre></li>
+        <li>If the above step completes then you are ready to start the dynamic analyser.</li>
+    </ul>
+<p>
+    For wireless or cloud instances please follow these steps before starting with the checklist.
+</p>
+<ul>
+    <li><strong>Wireless only:</strong> Connect the device using a USB cable, open a terminal and enter <pre><code>adb tcpip 5555</code></pre></li>
+    <li><strong>Wireless only:</strong> You can now disconnect the USB cable</li>
+    <li>Use the Wi-Fi settings on the Android device to find the local or remote IP address.</li>
+    <li>Connect to the remote device by running the following command on your local system: <pre><code>adb connect THE_IP_ADDRESS:5555</code></pre></li>
+</ul>
+
+
+<!-- Sep -->
+<hr class="my-5">
+<h3 class="font-weight-bold mb-2" id="burp-suite">
+    Using Burp Suite
+</h3>
+<p>
+    The dynamic analyser also supports Burp Suite (and other interception proxies).
+    You can set the CA certificate path and proxy host/port in the config.py file.
+    <br />
+    Make sure you don't start the built-in proxy server when external tools are in use!
+</p>
+{% endblock %}

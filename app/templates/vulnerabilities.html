@@ -1,0 +1,97 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    {% include 'topmenu.html' %}
+    <div class="row mt-2">
+            <div class="col-lg-12">
+                <form class="form-inline" method="get">
+                  <div class="form-group mb-2">
+                      <select name="severity" class="form-control">
+                          <option value="">Minimal severity</option>
+                          <option value="danger">High severity</option>
+                          <option value="warning">Medium severity</option>
+                          <option value="info">Low severity</option>
+                      </select>
+                  </div>
+                  <div class="form-group mx-sm-3 mb-2">
+                    <select name="finding" class="form-control">
+                        <option value="">Search by finding</option>
+                        {% for group in groups %}
+                        <option value="{{ group }}">{{ groups[group] }}</option>
+                        {% endfor %}
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary mb-2">Filter</button>
+                </form>
+            </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table">
+                <thead>
+                    <th>Vulnerability Description</th>
+                    <th>Severity</th>
+                    <th>Finding</th>
+                    <th>File</th>
+                    <th>MASVS</th>
+                </thead>
+                <tbody>
+                {% for vuln in vulns %}
+                <tr>
+                    <td>
+                        {{ vuln.text }}
+                        <a href="#" onclick="list_vuln({{ vuln.id }})"><i class="fas fa-question-circle text-info"></i> </a>
+                    </td>
+                    <td><span class="badge badge-{{ vuln.severity }}"> {{ vuln.severity }}</span></td>
+                    <td>{{ vuln.highlight }}</td>
+                    <td><a href="{{ url_for('get_folder_structure', app_id=app_id) }}?vuln={{ vuln.id }}">{{ vuln.filename }}:{{ vuln.file_line }}</a></td>
+                    <td>{{ vuln.mobile_asvs }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="modal fade" id="vulnerabilityModal" tabindex="-1" role="dialog" aria-labelledby="vulnerabilityTitle" aria-hidden="true">
+      <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="vulnerabilityTitle"></h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+              <p class="text-primary" id="vuln_text"></p>
+              <strong id="vuln_file"></strong>
+              <hr />
+              <pre><code id="vuln_raw"></code></pre>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+{% endblock %}
+
+{% block subscripts %}
+<script>
+function set_modal_data(result) {
+    $('#vulnerabilityTitle').text(result.vuln.text);
+    $('#vuln_text').text(result.vuln.description);
+    $('#vuln_file').text(result.vuln.filename + ':' + result.vuln.line);
+    $('#vuln_raw').text(result.text);
+    $('#vulnerabilityModal').modal()
+}
+
+function list_vuln(vuln_id) {
+    var get_vuln_url = '{{ url_for('get_vuln_information', vuln_id=":vuln") }}';
+    var build_url = get_vuln_url.replace(":vuln", vuln_id);
+    $.getJSON(build_url, function(data){
+        if(data.result) set_modal_data(data);
+    });
+}
+</script>
+{% endblock %}

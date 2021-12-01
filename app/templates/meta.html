@@ -1,0 +1,142 @@
+<div class="row mt-2">
+    <div class="col-lg-4">
+      <div class="card">
+          <div class="card-header">
+              <div class="card-title">{{ meta.common.name }} ({{ meta.common.package }})</div>
+          </div>
+          <div class="card-body">
+              <strong>Signatures</strong>
+              <ul class="list-group">
+                  {% if meta.security.signatures.signed_v1 %}
+                    <li class="list-group-item list-group-item-success">Signed v1</li>
+                  {% else %}
+                    <li class="list-group-item list-group-item-danger">Not signed v1</li>
+                  {% endif %}
+                  {% if meta.security.signatures.signed_v2 %}
+                    <li class="list-group-item list-group-item-success">Signed v2</li>
+                  {% else %}
+                    <li class="list-group-item list-group-item-danger">Not signed v2</li>
+                  {% endif %}
+                  {% if meta.security.signatures.signed_v3 %}
+                    <li class="list-group-item list-group-item-success">Signed v3</li>
+                  {% else %}
+                    <li class="list-group-item list-group-item-danger">Not signed v3</li>
+                  {% endif %}
+              </ul>
+          </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card">
+          <div class="card-header">
+              <div class="card-title">Static code vulnerability statistics</div>
+          </div>
+          <div class="card-body">
+              <strong>High - {{ severities["danger"] }}</strong>
+              <div class="progress">
+                  <div class="progress-bar progress-bar-animated progress-bar-striped bg-danger" style="width: {{ severities['perc_danger'] }}%" role="progressbar" aria-valuenow="{{ severities['danger'] }}" aria-valuemin="0" aria-valuemax="{{ severities['total'] }}"></div>
+              </div>
+              <hr />
+              <strong>Medium - {{ severities["warning"] }}</strong>
+              <div class="progress">
+                  <div class="progress-bar progress-bar-animated progress-bar-striped bg-warning" style="width: {{ severities['perc_warning'] }}%" role="progressbar" aria-valuenow="{{ severities['warning'] }}" aria-valuemin="0" aria-valuemax="{{ severities['total'] }}"></div>
+              </div>
+              <hr />
+              <strong>Low - {{ severities["info"] }}</strong>
+              <div class="progress">
+                  <div class="progress-bar progress-bar-animated progress-bar-striped bg-info" style="width: {{ severities['perc_info'] }}%" role="progressbar" aria-valuenow="{{ severities['info'] }}" aria-valuemin="0" aria-valuemax="{{ severities['total'] }}"></div>
+              </div>
+              <hr />
+              <strong>Informational - {{ severities["none"] }}</strong>
+              <div class="progress">
+                  <div class="progress-bar progress-bar-animated progress-bar-striped bg-success" style="width: {{ severities['perc_none'] }}%" role="progressbar" aria-valuenow="{{ severities['none'] }}" aria-valuemin="0" aria-valuemax="{{ severities['total'] }}"></div>
+              </div>
+          </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+          <div class="card-header">
+              <div class="card-title">Number of findings (grouped)</div>
+          </div>
+          <div class="card-body">
+            <ul class="list-group">
+                {% for unique_finding in findings %}
+                    <li class="list-group-item"><span class="badge badge-{{ map_severity[unique_finding] }}">{{ map_severity[unique_finding] }}</span> {{ unique_finding }} - {{ findings[unique_finding] }}</li>
+                {% endfor %}
+            </ul>
+          </div>
+        </div>
+    </div>
+</div>
+<div class="row mt-2">
+
+    <div class="col-lg-12">
+      <div class="card">
+          <div class="card-header">
+              <div class="card-title">Certificates</div>
+          </div>
+          <div class="card-body">
+              <div class="row">
+
+              {% for cert in meta.security.certificates %}
+                  <div class="col-md-4">
+              <strong>Certificate - {{ cert }}</strong>
+              <hr >
+              <ul class="list-group">
+                  <li class="list-group-item list-group-item-primary">
+                      <strong>Issuer</strong>
+                      {% for k in meta.security.certificates[cert].issuer %}
+                      <strong>{{ k }}:</strong> {{ meta.security.certificates[cert].issuer[k] }}</br>
+                      {% endfor %}
+                  </li>
+                  <li class="list-group-item">
+                      Algorithm: {{ meta.security.certificates[cert].hash_algo }}
+                  </li>
+                  {% if meta.security.certificates[cert].self_issued %}
+                  <li class="list-group-item list-group-item-danger">Self issued</li>
+                  {% else %}
+                  <li class="list-group-item list-group-item-success">Not self issued</li>
+                  {% endif %}
+                  {% if meta.security.certificates[cert].self_signed %}
+                  <li class="list-group-item list-group-item-danger">Self signed</li>
+                  {% else %}
+                  <li class="list-group-item list-group-item-success">Not self signed</li>
+                  {% endif %}
+                  {% if meta.security.certificates[cert].is_valid %}
+                  <li class="list-group-item list-group-item-success">Valid until {{ meta.security.certificates[cert].valid_until }}</li>
+                  {% else %}
+                  <li class="list-group-item list-group-item-danger">Invalid</li>
+                  {% endif %}
+              </ul>
+                  </div>
+              {% endfor %}
+                  </div>
+          </div>
+      </div>
+    </div>
+
+    <div class="col-lg-12 mt-2">
+      <div class="card">
+          <div class="card-header">
+              <div class="card-title">Permissions</div>
+          </div>
+          <div class="card-body">
+              <ul class="list-group">
+                  {% for permission in meta.security.permissions %}
+                    {% if meta.security.permissions[permission] == "low_risk" %}
+                        <li class="list-group-item list-group-item-warning">{{ permission }}
+                    {% elif meta.security.permissions[permission] == "high_risk" %}
+                        <li class="list-group-item list-group-item-danger">{{ permission }}
+                    {% else %}
+                         <li class="list-group-item list-group-item">{{ permission }}
+                    {% endif %}
+                    <hr />
+                    <i>{{ perms[permission] }}</i>
+                  </li>
+                  {% endfor %}
+              </ul>
+          </div>
+      </div>
+    </div>
+</div>

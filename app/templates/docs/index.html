@@ -1,0 +1,34 @@
+{% extends 'docs/layout.html' %}
+
+{% block content %}
+<h1 class="mb-2 mt-3">Introduction</h1>
+<p class="lead mb-3"> What is Aparoid? </p>
+<p>Aparoid is a framework for dynamic and static application analysis.
+    It is built on top of the Flask framework and supports a wide variety of devices and Android frameworks.</p>
+<!-- Sep -->
+<hr class="my-5">
+
+<!-- heading -->
+<h3 class="font-weight-bold mb-2">
+    Features
+</h3>
+<p> Some of the features that Aparoid static code analysis offers: </p>
+<ul>
+    <li>Automated code decompilation using <a href="https://github.com/skylot/jadx">jadx</a> </li>
+    <li>Search patterns for common static code weaknesses, vulnerabilities and other dangers</li>
+    <li>Binary security analysis</li>
+    <li>Various checks for commonly used frameworks including: <strong>Flutter, Xamarin and React Native</strong></li>
+    <li>Easy to use file browser</li>
+</ul>
+
+<p> Some of the features that Aparoid dynamic analysis offers: </p>
+<ul>
+    <li>Customizable code hooks using <a href="https://frida.re/">frida</a> </li>
+    <li>Custom built HTTP(S) interception proxy (including real-time traffic viewer)</li>
+    <li>Real-time application file browser</li>
+    <li>Basic security checks for HTTP traffic</li>
+    <li>Standard frida scripts to defeat root detection, SSL pinning and debugger detection</li>
+</ul>
+<!-- Sep -->
+<hr class="my-5">
+{% endblock %}

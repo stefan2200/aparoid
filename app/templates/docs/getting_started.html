@@ -1,0 +1,66 @@
+{% extends 'docs/layout.html' %}
+
+{% block content %}
+<h1 class="mb-2 mt-3">Getting started</h1>
+<p class="lead mb-3"> Everything you need to get Aparoid set-up! </p>
+
+<h3 class="font-weight-bold mb-2" id="installing">
+    Installation
+</h3>
+<p> You can use this to set-up Aparoid: </p>
+<ul>
+    <li>Clone the Aparoid repository using <pre><code>git clone https://github.com/stefan2200/aparoid</code></pre> </li>
+    <li>cd to the directory and run the setup script <pre><code>cd aparoid; ./setup.sh</code></pre></li>
+    <li>Start Aparoid by running <pre><code>./start.sh</code></pre></li>
+    <li>Windows users have to run the <strong>setup.bat</strong> and <strong>start.bat</strong> scripts</li>
+</ul>
+
+<h3 class="font-weight-bold mb-2" id="docker">
+    Docker
+</h3>
+<p> You can also install Aparoid using docker: </p>
+<ul>
+    <li>Clone the Aparoid repository using <pre><code>git clone https://github.com/stefan2200/aparoid</code></pre> </li>
+    <li>Make sure the docker engine is installed and working</li>
+    <li>cd to the directory and run <pre><code>docker compose up -d</code></pre></li>
+</ul>
+
+<h3 class="font-weight-bold mb-2" id="optional">
+    Optional utilities
+</h3>
+<p> The HTTP(S) proxy uses Kafka to process data asynchronously.
+    If you have no problems reading the traffic from the terminal you can disable Kafka in the configuration file.
+    I do however recommend installing Kafka either native or using Docker. You can follow the guide below to set-up Kafka using Docker.
+
+</p>
+<h6 class="font-weight-bold mb-2">
+    Linux
+</h6>
+<ul>
+    <li>Install the Docker Engine by following the steps on <a href="https://docs.docker.com/engine/install/ubuntu/">docker.com</a> </li>
+    <li>Install Docker Compose by following the steps on <a href="https://docs.docker.com/compose/install/">docker.com</a> </li>
+    <li>cd into the <strong>collector</strong> directory</li>
+    <li>Start the Kafka server by running <pre><code>sudo docker-compose up -d</code></pre></li>
+</ul>
+
+<h6 class="font-weight-bold mb-2">
+    Windows
+</h6>
+<ul>
+    <li>Install the Docker Desktop by following the steps on <a href="https://docs.docker.com/desktop/windows/install/">docker.com</a> </li>
+    <li>cd into the <strong>collector</strong> directory</li>
+    <li>Start the Kafka server by running <pre><code>docker-compose up -d</code></pre></li>
+</ul>
+
+<h3 class="font-weight-bold mb-2" id="updating">
+    Updating
+</h3>
+<p> Aparoid will automatically update when running the setup script. </p>
+<ul>
+    <li>cd to the directory and run the setup script <pre><code>cd aparoid; ./setup.sh</code></pre></li>
+    <li>Windows users have to run the <strong>setup.bat</strong> script</li>
+</ul>
+
+<!-- Sep -->
+<hr class="my-5">
+{% endblock %}

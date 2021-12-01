@@ -1,0 +1,102 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+            <div class="card-header">
+                Initial connection
+            </div>
+            <div class="card-body" id="connection">
+                Please select the device and select the correct one in the list below.
+                <div>Searching for devices <i class="fas fa-spinner fa-spin"></i> </div>
+                <span class="text-danger" id="error_result"></span>
+                <ul class="list-group" id="devices">
+
+                </ul>
+                <hr />
+                <div class="form-horizontal">
+                    <div class="form-group row">
+                        <div class="col-md-4">
+                            <input class="form-control" id="hostname" type="text" placeholder="Remote connection hostname or IP" />
+                        </div>
+                        <div class="col-md-2">
+                            <input class="form-control" id="port" type="text" placeholder="Remote port" />
+                        </div>
+                        <div class="col-md-4">
+                            <button class="btn btn-success" onclick="start_remote()">Connect to remote instance</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+            <div class="card-header">
+                My device is not showing up
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    <li class="list-group-item">
+                        #1 Make sure the device is properly connected (only when using a USB cable)
+                    </li>
+                    <li class="list-group-item">
+                        #2 Make sure USB debugging is enabled. For more information please refer to
+                        <a href="https://developer.android.com/studio/debug/dev-options" target="_blank">https://developer.android.com/studio/debug/dev-options</a>
+                    </li>
+                    <li class="list-group-item">
+                        #3 Check your device to see if it requires Authorization (also select "Always allow from this computer")
+                    </li>
+                    <li class="list-group-item">
+                        #4 Check if ADB is installed correctly and is accessible system-wide.<br />
+                        You may also set the adb command location in the config.py file
+                    </li>
+                    <li class="list-group-item list-group-item-secondary">
+                        If you are running Aparoid in a docker container you can sometimes only connect to remote devices. You can connect the device to your host machine and execute the following commands:
+                        <pre>adb tcpip 5555</pre><br />
+                        Whenever you are using a physical device you must set up a reverse port forward using:
+                        <pre>adb forward tcp:5555 tcp:5555</pre>.
+                        Afterwards, you can use &quot;Connect to remote instance&quot; to connect to <strong>host.docker.internal</strong> on port <strong>5555</strong>.
+                    </li>
+                </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block subscripts %}
+    <script>
+    var seen_devices = {};
+        function enumerate_devices() {
+            $.getJSON("{{ url_for('list_adb_devices') }}", function(result){
+                if(result.status && result.devices != seen_devices) {
+                    $('#error_result').text("");
+                    seen_devices = result.devices;
+                    var builder = '';
+                    for (const [key, value] of Object.entries(result.devices)) {
+                      builder += '<li class="list-group-item"><a href="{{ url_for('dynamic_rooted_setup', device_type=device_type) }}/check/' + key + '"><b>' + key + '</b></a> - ' + value + '</li> ';
+                    }
+                    $('#devices').html(builder);
+                }
+                else if (!result.status) {
+                    $('#error_result').text(result.error);
+                    $('#devices').html('');
+                }
+            });
+            setTimeout(enumerate_devices, 2000);
+        }
+        function start_remote() {
+            var domain = $('#hostname').val();
+            var port = $('#port').val();
+            $.getJSON("{{ url_for('adb_remote_connect') }}?domain="+domain+"&port="+port, function(result){
+                if(!result.status) {
+                    alert(result.error);
+                }
+            });
+        }
+    enumerate_devices();
+    </script>
+{% endblock %}

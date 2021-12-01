@@ -1,0 +1,271 @@
+{
+    "name": "DyStr static file checks",
+    "version": 1.42,
+    "matches": [
+        {
+            "key": "src.writes_storage",
+            "text": "Writes external storage",
+            "description": "It might be possible that the application is storing sensitive information on the external device storage. This storage is accessible by all applications on the device.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "android.permission.WRITE_EXTERNAL_STORAGE"
+                },
+                {
+                    "search": "contains",
+                    "match": "Manifest.permission.WRITE_EXTERNAL_STORAGE"
+                }
+            ]
+        },
+        {
+            "key": "src.storage_access",
+            "text": "External storage access",
+            "description": "The application is accessing data on the remote storage of the device",
+            "masvs": "MSTG-STORAGE-2",
+            "search_type": "multi",
+            "severity": "info",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "getExternalStorageDirectory"
+                }
+            ]
+        },
+        {
+            "key": "src.writes_debug_log",
+            "text": "Debug logging",
+            "description": "The application is writing information to the system log. Logging sensitive information might be accessible by third-party actors having access to debug functionality like adb.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "info",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "Log\\.(?:d|v)"
+                },
+                {
+                    "search": "regex",
+                    "match": "system\\.(?:out|err)\\.print"
+                }
+            ]
+        },
+        {
+            "key": "src.insecure_random",
+            "text": "Insecure random number generator",
+            "description": "The application is using the system default Random() function. This is not a secure random generator and is considered a risk when being used in cryptographic functions.",
+            "search_type": "multi",
+            "masvs": "MSTG-CRYPTO-6",
+            "search_location": "",
+            "severity": "warning",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "new Random("
+                }
+            ]
+        },
+        {
+            "key": "src.password_string",
+            "text": "Password reference was found",
+            "description": "The application references 'password' which might help in finding useful functions.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "none",
+            "search_location": "java,json",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "password"
+                }
+            ]
+        },
+        {
+            "key": "src.jwt",
+            "text": "Possible JWT found",
+            "description": "The application is possible using base64 encoded JSON. This might be an indication that a hard-coded JSON web token is stored in the source code",
+            "search_type": "multi",
+            "masvs": null,
+            "search_location": "",
+            "severity": "info",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "[\"'>](eyJ.+?)[\"'<]"
+                }
+            ]
+        },
+        {
+            "key": "src.request_superuser",
+            "text": "SuperUser access",
+            "description": "The application is requesting superuser access, this might indicate malicious behaviour if the application is not meant for privileged functionality.",
+            "masvs": null,
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "android.permission.ACCESS_SUPERUSER"
+                }
+            ]
+        },
+        {
+            "key": "src.shell_exec",
+            "text": "Shell execution",
+            "description": "The application is executing operating system commands. This might indicate a security risk if used improperly.",
+            "masvs": null,
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "getRuntime().exec"
+                }
+            ]
+        },
+        {
+            "key": "src.listen_socket",
+            "text": "Listening socket",
+            "description": "The application is possibly listening on a socket. This might create additional attack surface.",
+            "masvs": null,
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "ServerSocket\\(.+?\\)"
+                }
+            ]
+        },
+        {
+            "key": "src.package_manager",
+            "text": "Enumerating installed packages",
+            "description": "The application is possibly requesting a list of installed packages on the device. This is very common in root checks but might indicate malicious behaviour.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "getInstalledApplications("
+                }
+            ]
+        },
+        {
+            "key": "src.plaintext_http",
+            "text": "Plain-text HTTP endpoint",
+            "description": "The application uses a URL not prefixed by https://. By default this will create an insecure connection which allows anyone monitoring network traffic to see the transmitted data.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "danger",
+            "search_location": "java,json",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "http://(?!schemas.android.com)"
+                }
+            ]
+        },
+        {
+            "key": "src.webkit_allows_javascript",
+            "text": "WebKit has JavaScript support enabled",
+            "description": "Webkit can be used to render HTML pages inside an Android application. Enabling HTML might allow attackers to conduct Cross-Site Scripting attacks or access local files.",
+            "mobile_asvs": "",
+            "search_type": null,
+            "severity": "warning",
+            "search_location": "",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "setJavaScriptEnabled(true)"
+                },
+                {
+                    "search": "contains",
+                    "match": "addJavascriptInterface("
+                }
+            ]
+        },
+        {
+            "key": "src.debugger_detection",
+            "text": "Debugger detection",
+            "description": "The application checks if a debugger is attached. This might be a resilience technique but it could also indicate malicious behavior.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "info",
+            "search_location": "java",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "isDebuggerConnected"
+                }
+            ]
+        },
+        {
+            "key": "src.web_endpoint",
+            "text": "Web endpoint found",
+            "description": "A web endpoint was found. This can be used for further enumeration.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "none",
+            "search_location": "java,json",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "(http(?:s)?://.+?/.+?)[\"'<]",
+                    "group": 1
+                }
+            ]
+        },
+        {
+            "key": "src.webkit_allows_file_access",
+            "text": "WebKit has local file support enabled",
+            "description": "WebKit has access to local files stored on the device. An attacker can abuse this functionality to gain access to files stored by the application and on external storage.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "danger",
+            "search_location": "java",
+            "patterns": [
+                {
+                    "search": "contains",
+                    "match": "setAllowFileAccess(true)"
+                }
+            ]
+        },
+        {
+            "key": "src.insecure_crypto",
+            "text": "Insecure cryptographic or hashing function used",
+            "description": "The code contains references to a insecure, obsolete or deprecated cryptographic operation. This could indicate that data is insufficiently protected when stored.",
+            "mobile_asvs": "",
+            "search_type": "multi",
+            "severity": "warning",
+            "search_location": "java",
+            "patterns": [
+                {
+                    "search": "regex",
+                    "match": "\\([\"']AES/ECB/PKCS5PADDING"
+                },
+                {
+                    "search": "regex",
+                    "match": "\\([\"']AES/CBC/PKCS5PADDING"
+                },
+                {
+                    "search": "regex",
+                    "match": "\\([\"']MD5"
+                },
+                {
+                    "search": "regex",
+                    "match": "\\([\"']SHA1"
+                }
+            ]
+        }
+    ]
+}

@@ -1,0 +1,82 @@
+{
+    "1": {
+        "name": "Android 1.0",
+        "supported": false
+    },
+    "2": {
+        "name": "Android 1.1",
+        "supported": false
+    },
+    "3": {
+        "name": "Android Cupcake",
+        "supported": false
+    },
+    "4": {
+        "name": "Android Donut",
+        "supported": false
+    },
+    "5": {
+        "name": "Android Eclair",
+        "supported": false
+    },
+    "8": {
+        "name": "Android Froyo",
+        "supported": false
+    },
+    "9": {
+        "name": "Android Gingerbread",
+        "supported": false
+    },
+    "11": {
+        "name": "Android Honeycomb",
+        "supported": false
+    },
+    "14": {
+        "name": "Android Ice Cream Sandwich",
+        "supported": false
+    },
+    "16": {
+        "name": "Android Jelly Bean",
+        "supported": false
+    },
+    "19": {
+        "name": "Android KitKat",
+        "supported": false
+    },
+    "21": {
+        "name": "Android Lollipop",
+        "supported": false
+    },
+    "23": {
+        "name": "Android Marshmallow",
+        "supported": false
+    },
+    "24": {
+        "name": "Android Nougat",
+        "supported": false
+    },
+    "26": {
+        "name": "Android Oreo",
+        "supported": false
+    },
+    "28": {
+        "name": "Android Pie",
+        "supported": true
+    },
+    "29": {
+        "name": "Android 10",
+        "supported": true
+    },
+    "30": {
+        "name": "Android 11",
+        "supported": true
+    },
+    "31": {
+        "name": "Android 12",
+        "supported": true
+    },
+    "32": {
+        "name": "Android 12L",
+        "supported": true
+    }
+}

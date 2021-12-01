@@ -1,0 +1,108 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    {% include 'topmenu.html' %}
+    <div class="row">
+        <div class="col-lg-12">
+            <table class="table">
+                <thead>
+                    <th>Binary</th>
+                    <th>Architecture</th>
+                    <th>Packed</th>
+                    <th>ASLR</th>
+                    <th>Canary</th>
+                    <th>NX</th>
+                    <th>PIE</th>
+                    <th>RELRO</th>
+                    <th>Fortify</th>
+                </thead>
+                <tbody>
+                    {% if binaries | count == 0 %}
+                    <tr><td colspan="9">No binaries were found</td></tr>
+                    {% endif %}
+                    {% for b in binaries %}
+                        <tr>
+                            <td>{{ b.name }}</td>
+                            <td>{{ b.data.arch }}</td>
+                            <td>{{ b.data.packed }}</td>
+                            {% if b.data.aslr %}<td class="table-success">Yes{% else %}<td class="table-danger">No{% endif %}</td>
+                            {% if b.data.canary %}<td class="table-success">Yes{% else %}<td class="table-danger">No{% endif %}</td>
+                            {% if b.data.nx %}<td class="table-success">Yes{% else %}<td class="table-danger">No{% endif %}</td>
+                            {% if b.data.pie %}<td class="table-success">Yes{% else %}<td class="table-danger">No{% endif %}</td>
+                            {% if b.data.relro == "Full" %}
+                                <td class="table-success">Full
+                            {% elif b.data.relro == "Partial" %}
+                                <td class="table-warning">Partial
+                                {% else %}<td class="table-danger">No{% endif %}</td>
+                            {% if b.data.fortify %}<td class="table-success">Yes{% else %}<td class="table-danger">No{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card" id="aslr">
+                <div class="card-header">
+                    <h5 class="card-title">Address space layout randomization (ASLR)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Address space layout randomization (ASLR) is a computer security technique involved in preventing exploitation of memory corruption vulnerabilities. In order to prevent an attacker from reliably jumping to, for example, a particular exploited function in memory, ASLR randomly arranges the address space positions of key data areas of a process, including the base of the executable and the positions of the stack, heap and libraries.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="card" id="canary">
+                <div class="card-header">
+                    <h5 class="card-title">Stack canaries</h5>
+                </div>
+                <div class="card-body">
+                    <p>Stack canaries are used to detect a stack buffer overflow before execution of malicious code can occur. This method works by placing a small integer, the value of which is randomly chosen at program start, in memory just before the stack return pointer.
+                        Most buffer overflows overwrite memory from lower to higher memory addresses, so in order to overwrite the return pointer (and thus take control of the process) the canary value must also be overwritten. This value is checked to make sure it has not changed before a routine uses the return pointer on the stack. This technique can greatly increase the difficulty of exploiting a stack buffer overflow because it forces the attacker to gain control of the instruction pointer by some non-traditional means such as corrupting other important variables on the stack</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="card" id="nx">
+                <div class="card-header">
+                    <h5 class="card-title">No-execute (NX)</h5>
+                </div>
+                <div class="card-body">
+                    <p>The NX bit (no-execute) is a technology used in CPUs to segregate areas of memory for use by either storage of processor instructions (code) or for storage of data, a feature normally only found in Harvard architecture processors. However, the NX bit is being increasingly used in conventional von Neumann architecture processors for security reasons.
+                        An operating system with support for the NX bit may mark certain areas of memory as non-executable. The processor will then refuse to execute any code residing in these areas of memory. The general technique, known as executable space protection, also called Write XOR Execute, is used to prevent certain types of malicious software from taking over computers by inserting their code into another program's data storage area and running their own code from within this section; one class of such attacks is known as the buffer overflow attack.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="card" id="pie">
+                <div class="card-header">
+                    <h5 class="card-title">Position-independent executable (PIE)</h5>
+                </div>
+                <div class="card-body">
+                    <p>Position-independent executables (PIE) are executable binaries made entirely from position-independent code. While some systems only run PIC executables, there are other reasons they are used. PIE binaries are used in some security-focused Linux distributions to allow PaX or Exec Shield to use address space layout randomization to prevent attackers from knowing where existing executable code is during a security attack using exploits that rely on knowing the offset of the executable code in the binary, such as return-to-libc attacks.</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12">
+            <div class="card" id="relro">
+                <div class="card-header">
+                    <h5 class="card-title">Relocation Read-Only (RELRO)</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        Relocation Read-Only (RELRO) ensures that the Global Offset Table (GOT) cannot be overwritten in vulnerable ELF binaries.
+                        In practice there are two ways that RELRO can be implemented:
+                    </p>
+                    <strong>Full</strong>
+                    <p>The entire GOT and Procedure Linkage Table (PLT) is marked as read-only. This prevents hijacking of addresses stored in the GOT.
+                    This is considered the most secure implementation of RELRO</p>
+
+                    <strong>Partial</strong>
+                    <p>The non-PLT part of the GOT section is read only but .got.plt is still writeable.
+                    While the GOT is fully protected against writing it is still possible for an attacker to write to the PLT.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+    {% include 'topmenu.html' %}
+    <div class="row">
+        <div class="col-lg-12 mt-2">
+            {% if meta %}
+                {% include 'meta.html' %}
+            {% else %}
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">Running analysis <i class="fas fa-spinner fa-spin"></i> </div>
+                    </div>
+                    <div class="card-body">
+                        <pre id="joblog"></pre>
+                    </div>
+                </div>
+            <script>
+                function pull() {
+                    $.getJSON("{{ url_for('get_app_sub_status', app_id=app_id) }}", function(data){
+                        $('#joblog').html("");
+                        $.each(data, function(key, value) {
+                            if(value.name == "info:analysis.end") {
+                                document.location.reload();
+                            }
+                            var item = value.added + ' - ' + value.data + '\r\n';
+                            $('#joblog').html($('#joblog').html() + item);
+                        })
+                    }).fail(function() { setTimeout(pull, 5000); });
+                    setTimeout(pull, 5000);
+                }
+                setTimeout(pull, 200);
+            </script>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

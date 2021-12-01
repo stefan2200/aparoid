@@ -1,0 +1,91 @@
+{% extends 'layout.html' %}
+{% block content %}
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+            <div class="card-header">
+                Scanned applications
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+
+                </ul>
+            </div>
+        </div>
+        </div>
+    </div>
+
+<div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+            <div class="card-header">
+                New Scan
+                <hr />
+                Please connect the device and set up either a local or remote adb connection. For more information please consult the <a href="#">Documentation</a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <h4>Writable system strategy</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-primary">
+                                For Android emulators and devices running non-production builds
+                            </li>
+                            <li class="list-group-item">
+                                Works for most remotely deployed Android instances
+                            </li>
+                            <li class="list-group-item">
+                                Check if your device is supported by running:
+                                <p class="text-info">adb root<br />adb remount</p>
+                                If no errors show up then this is probably the one
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{{ url_for('dynamic_rooted_setup', device_type='emulated') }}" class="btn btn-success">Go with Emulated</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4>System as root strategy</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-primary">
+                                For devices running SuperSU (or equivalents)
+                            </li>
+                            <li class="list-group-item">
+                                Works when /system is writable as root
+                            </li>
+                            <li class="list-group-item">
+                                Android version < 9.0 supported
+                            </li>
+                            <li class="list-group-item">
+                                Check if your device is supported by running:
+                                <p class="text-info">adb shell su -c "mount -o rw,remount /system"</p>
+                                If no errors show up then this is probably the one
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{{ url_for('dynamic_rooted_setup', device_type='rooted') }}" class="btn btn-success">Go with Rooted</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-4">
+                        <h4>Systemless root strategy</h4>
+                        <ul class="list-group">
+                            <li class="list-group-item list-group-item-primary">
+                                For devices rooted using Magisk
+                            </li>
+                            <li class="list-group-item">
+                                Android version > 9.0 supported
+                            </li>
+                            <li class="list-group-item">
+                                Requires third-party Magisk modules
+                            </li>
+                            <li class="list-group-item">
+                                <a href="{{ url_for('dynamic_rooted_setup', device_type='systemless') }}" class="btn btn-success">Go with Systemless</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+    </div>
+{% endblock %}

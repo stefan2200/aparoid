@@ -1,0 +1,40 @@
+{% extends 'docs/layout.html' %}
+
+{% block content %}
+<h1 class="mb-2 mt-3">Troubleshooting</h1>
+<p class="lead mb-3">This chapter will help you trace issues.</p>
+
+<h3 class="font-weight-bold mb-2" id="dynamic">
+    Dynamic analysis issues
+</h3>
+
+<p>
+    By default the application will monitor and print all executed adb commands to the console.
+    In case of errors please check the adb command and output. If any errors are being produced you might be able to pinpoint the source of the problem.
+
+    I know using adb with many parallel processes (reverse proxy, shell commands, frida, etc.) can get a bit messy and sometimes commands fail for no reason. If something does not work on the first attempt, just refresh the page and try again.
+</p>
+
+
+<h3 class="font-weight-bold mb-2" id="issue">
+    Submitting issues
+</h3>
+
+<p>
+    When you are almost certain that an error is caused by the code and you are able to fix it yourself please submit a pull request.
+    <br />
+    If you are unable to fix the issue yourself please submit an issue on the <a href="https://github.com/stefan2200/aparoid">Aparoid GitHub</a> page.
+    To make the process of reproduction easier please use the template below:
+</p>
+<pre><code>
+    Device name:
+    Selected strategy:
+    Observed issue:
+    Expected behaviour:
+    (optional) executed adb command
+    (optional) executed adb output and error
+</code></pre>
+
+<!-- Sep -->
+<hr class="my-5">
+{% endblock %}

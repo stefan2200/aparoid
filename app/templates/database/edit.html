@@ -1,0 +1,141 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<form method="post" action="{{ url_for('set_database_entry') }}">
+    <div class="row">
+
+            <div class="col-lg-6">
+              <div class="form-group row">
+                <label class="col-4 col-form-label" for="key">Key</label>
+                <div class="col-8">
+                  <input id="key" name="key" type="text" class="form-control" value="{{ entry.key }}">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="text" class="col-4 col-form-label">Name</label>
+                <div class="col-8">
+                  <input id="text" name="text" type="text" class="form-control" value="{{ entry.text }}">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="description" class="col-4 col-form-label">Description</label>
+                <div class="col-8">
+                  <textarea id="description" name="description" cols="40" rows="5" class="form-control">{{ entry.description }}</textarea>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="severity" class="col-4 col-form-label">Severity</label>
+                <div class="col-8">
+                  <select id="severity" name="severity" class="custom-select">
+                    <option value="danger" {% if entry.severity == 'danger' %} selected  {% endif %}>High</option>
+                    <option value="warning" {% if entry.severity == 'warning' %} selected  {% endif %}>Medium</option>
+                    <option value="info" {% if entry.severity == 'info' %} selected  {% endif %}>Low</option>
+                    <option value="none" {% if entry.severity == 'none' %} selected  {% endif %}>Informational</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group row">
+                <label for="mobile-asvs" class="col-4 col-form-label">Mobile ASVS</label>
+                <div class="col-8">
+                  <input id="mobile-asvs" name="mobile-asvs" type="text" class="form-control" value="{{ entry.mobile_asvs }}">
+                </div>
+              </div>
+                <div class="form-group row">
+                <label for="search-location" class="col-4 col-form-label">List of allowed file-types for script</label>
+                <div class="col-8">
+                  <input id="search-location" name="search-location" type="text" class="form-control" value="{{ entry.search_location }}">
+                </div>
+              </div>
+              <div class="form-group row">
+                <label class="col-4">Options</label>
+                <div class="col-8">
+                  <div class="custom-control custom-checkbox custom-control-inline">
+                    <input name="search-type" id="search-type_0" type="checkbox" class="custom-control-input" value="multi" {% if entry.search_type == 'multi' %} checked  {% endif %}>
+                    <label for="search-type_0" class="custom-control-label">Allow multiple</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="offset-4 col-8">
+                  <button name="submit" type="submit" class="btn btn-primary">Submit</button>
+                    <a href="{{ url_for('get_database') }}" class="btn btn-danger">Back </a>
+                </div>
+              </div>
+        </div>
+        <div class="col-lg-6">
+            <strong>Patterns</strong>
+            {% for index in range(0, entry.patterns|length) %}
+                  <div class="form-group row match-row" id="match-row-{{index}}">
+                    <div class="col-4">
+                        <select id="match-{{index}}" name="match[{{index}}]" class="custom-select">
+                            <option value="regex" {% if entry.patterns[index].search == 'regex' %} selected {% endif %}>RegEx</option>
+                            <option value="contains" {% if entry.patterns[index].search == 'contains' %} selected {% endif %}>Contains</option>
+                        </select>
+                    </div>
+                    <div class="col-7">
+                      <input id="pattern-{{index}}" name="pattern[{{index}}]" type="text" class="form-control" value="{{ entry.patterns[index].match }}">
+                    </div>
+                      <div class="col-1">
+                        <button type="button" onclick="remove_row({{index}})" class="btn btn-danger btn-inline"><i class="fas fa-trash-alt"></i> </button>
+                    </div>
+                  </div>
+              <hr >
+            {% endfor %}
+            <div class="form-group row" id="last-row">
+                <div class="col-12">
+                    <button type="button" onclick="new_row();" class="btn btn-success"><i class="fas fa-plus"></i> </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+<div style="display: none;" id="template">
+    <div class="form-group row match-row" id="match-row-990">
+                    <div class="col-4">
+                        <select id="match-0" name="match[99]" class="custom-select">
+                            <option value="regex">RegEx</option>
+                            <option value="contains">Contains</option>
+                        </select>
+                    </div>
+                    <div class="col-7">
+                      <input id="pattern-99" name="pattern[99]" type="text" class="form-control" value="">
+                    </div>
+                      <div class="col-1">
+                        <button type="button" onclick="remove_row(99)" class="btn btn-danger btn-inline"><i class="fas fa-trash-alt"></i> </button>
+                    </div>
+                  </div>
+</div>
+{% endblock %}
+
+{% block subscripts %}
+<script>
+var last_index = {{ entry.patterns|length }};
+
+function recalculate_rows() {
+    var match_rows = $(".match-row");
+    $.each(match_rows, function(index, entry){
+        $(entry).attr("id","match-row-"+index);
+        var select = $(entry).find("select").eq(0);
+        $(select).attr("id","match-"+index);
+        $(select).attr("name","match["+index+"]");
+
+        var input = $(entry).find("input").eq(0);
+        $(input).attr("id","pattern-"+index);
+        $(input).attr("name","pattern["+index+"]");
+
+        var button = $(entry).find("button").eq(0);
+        $(button).attr("onclick","remove_row("+index+")");
+    });
+}
+
+function remove_row(index) {
+    $("#match-row-"+index).remove();
+    recalculate_rows();
+}
+function new_row() {
+    var template = $("#template").html();
+    $(template).insertBefore($("#last-row"));
+     recalculate_rows();
+}
+</script>
+{% endblock %}

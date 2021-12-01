@@ -1,0 +1,37 @@
+<strong>{{ frida_open.id }}</strong>
+<br />
+<p>{{ frida_open.name }} - {{ frida_open.type }}</p>
+
+<table class="table">
+  <thead>
+  <tr><th>Package</th><th>Name</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+  {% for application in frida_applications %}
+    <tr>
+      <td>{{ application.id }}
+      {% if application.pid %} <i class="fas fa-spin fa-spinner text-success"></i> {% endif %}
+      </td>
+      <td>{{ application.name }}</td>
+      <td>
+
+        {% if application.pid %}
+        <button title="Kill the application" class="btn btn-sm btn-danger" onclick="frida_kill('{{ application.name }}')">
+          <i class="fas fa-stop-circle"></i>
+        </button>
+        {% else %}
+        <button title="Start the application" class="btn btn-sm btn-success" onclick="frida_spawn('{{ application.id }}')">
+          <i class="fas fa-play"></i>
+        </button>
+        {% endif %}
+        <a title="Instrument" class="btn btn-sm btn-info" href="{{ url_for('frida_dashboard', device_uuid=device_uuid, device_type=device_type, application=application.id) }}">
+          <i class="fas fa-birthday-cake"></i>
+        </a>
+        <a title="Static analysis" class="btn btn-sm btn-primary" href="{{ url_for('to_static_analyser', device_uuid=device_uuid, device_type=device_type, application=application.id) }}">
+          <i class="fas fa-code"></i>
+        </a>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
