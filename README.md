@@ -2,6 +2,9 @@
 
 [![python](https://img.shields.io/badge/python-3.7+-blue.svg?logo=python&labelColor=yellow)](https://www.python.org/downloads/)
 [![platform](https://img.shields.io/badge/platform-osx%2Flinux%2Fwindows-green.svg)](https://github.com/stefan2200/aparoid/)
+[![License](https://img.shields.io/:license-GPL--3.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.html)
+[![Updates](https://pyup.io/repos/github/stefan2200/aparoid/shield.svg)](https://pyup.io/repos/github/stefan2200/aparoid/)
+[![Python 3](https://pyup.io/repos/github/stefan2200/aparoid/python-3-shield.svg)](https://pyup.io/repos/github/stefan2200/aparoid/)
 
 Aparoid is a framework designed for Android application analysis. It offers an automated set of tools to discover vulnerabilities and other risks in mobile applications.
 It is built using the Flask framework and offers a web GUI to upload APK files and explore the contents / results.
