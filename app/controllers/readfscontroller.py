@@ -2,12 +2,35 @@
 Module to read files stored by the static analyser
 """
 import json
+import string
 
 from flask import (render_template, request, jsonify)
 from app import flask
 from ext.frida_utils import auto_method_patcher
 
 from app.models.application import MobileFile, MobileFileFinding
+
+
+def strings(data: bytes, min_string_length=4):
+    """
+    Python equivalent of the Linux strings command
+    :param data:
+    :param min_string_length:
+    :return:
+    """
+    output = []
+    result = ""
+    char_pool = [ord(x) for x in string.printable]
+    for character in data:
+        if character in char_pool:
+            result += chr(character)
+            continue
+        if len(result) >= min_string_length:
+            output.append(result)
+        result = ""
+    if len(result) >= min_string_length:
+        output.append(result)
+    return output
 
 
 @flask.route("/files/<app_id>", methods=["GET"])
@@ -73,15 +96,38 @@ def get_raw_file(app_id):
 
     try:
         entry["data"] = entry["data"].decode()
+        try:
+            if entry["data"].startswith("{") or entry["data"].startswith("["):
+                entry["data"] = json.dumps(
+                    json.loads(entry["data"]),
+                    indent=4,
+                    sort_keys=False
+                )
+        except ValueError:
+            pass
     except UnicodeDecodeError:
-        entry["data"] = "This is a binary file and cannot be viewed."
+        data_out = "This is a binary file, non-readable sections were removed\n\n"
+        data_out += "\n".join(strings(entry["data"]))
+        entry["data"] = data_out
+
+    return jsonify(entry)
+
+
+@flask.route("/get_strings/<app_id>", methods=["GET"])
+def get_raw_file_strings(app_id):
+    """
+    Extract strings from a binary file
+    :param app_id:
+    :return:
+    """
+    selected = request.args.get("file")
+    get_apk_data = MobileFile.query.filter(
+        MobileFile.application_id == app_id
+    ).filter(MobileFile.name == selected)
+
+    entry = get_apk_data.first().readable()
     try:
-        if entry["data"].startswith("{") or entry["data"].startswith("["):
-            entry["data"] = json.dumps(
-                json.loads(entry["data"]),
-                indent=4,
-                sort_keys=False
-            )
+        entry['data'] = strings(entry['data'])
     except ValueError:
         pass
     return jsonify(entry)

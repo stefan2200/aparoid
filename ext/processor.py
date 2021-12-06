@@ -164,11 +164,13 @@ class ApplicationProcessor:
                 binary_files.append(filename)
             if filename.endswith(".dll"):
                 binary_files.append(filename)
-            basename = os.path.basename(filename)
-            if "." not in basename:
-                file_data = magic.from_file(filename)
-                if "elf" in file_data.lower():
-                    binary_files.append(filename)
+
+        Reporter.push_log(
+            endpoint=self.endpoint,
+            key="info:binalysys.count",
+            application_id=self.apk_checksum,
+            text=f"Found {len(binary_files)} potential binary files"
+        )
         Reporter.push_log(
             endpoint=self.endpoint,
             key="info:binalysys.start",
@@ -285,6 +287,12 @@ def threaded_processor(endpoint, apk_checksum, apk_location):
             apk_location
         ).run()
     except Exception as parse_exception:
+        Reporter.push_log(
+            endpoint=endpoint,
+            key="error:parse_exception",
+            application_id=apk_checksum,
+            text=f"APK parse exception: {str(parse_exception)}"
+        )
         print(f"APK parse exception: {str(parse_exception)}")
 
 

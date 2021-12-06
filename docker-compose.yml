@@ -33,6 +33,10 @@ services:
       - POSTGRES_USER=aparoid
       - POSTGRES_PASSWORD=aparoid
       - POSTGRES_DB=aparoid
+    healthcheck:
+      test: "pg_isready --username=aparoid && psql --username=aparoid --list"
+      timeout: 10s
+      retries: 20
   aparoid:
     container_name: Aparoid
     privileged: true
@@ -46,8 +50,10 @@ services:
     ports:
      - "7300:7300"
     depends_on:
-      - kafka
-      - postgres
+      kafka:
+        condition: service_started
+      postgres:
+        condition: service_healthy
     links:
       - "kafka"
       - "postgres"

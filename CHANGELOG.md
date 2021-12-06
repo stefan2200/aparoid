@@ -1,3 +1,11 @@
+## Version 0.1.12
+- Fixed docker-compose service start
+- Added "strings" like feature for binary files
+- Optimized requirements for Windows
+- Added temporary bypass for broken lz4 wheel
+- Attempted fix on frida Kafka mess
+- Checks and some deobfuscation for the Cordova framework
+
 ## Version 0.1.11
 - Code refactoring
 - Bugfixes

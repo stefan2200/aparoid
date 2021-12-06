@@ -14,7 +14,7 @@ The current version offers the following features:
 - APK decompilation using jadx
 - Vulnerability detection system (rules configurable using the dashboard)
 - Binary file risk analysis
-- Custom features for frameworks like React Native, Flutter and Xamarin
+- Custom features for frameworks like React Native, Flutter, Xamarin and Cordova
 - Android Manifest security checks
 - Dynamic analysis on all (rooted) Android devices (physical, emulated and cloud based)
 - Frida scripts for the bypass of root detection, SSL pinning and debugger detection (custom scripts are also supported)
@@ -37,12 +37,15 @@ git clone https://github.com/stefan2200/aparoid
 cd aparoid
 python3 -m pip install --upgrade requirements.txt
 
+# The python-magic-bin library is required on Windows
+python3 -m pip install python-magic-bin
+
 # Start the server on port 7300
 ./start.sh
 ```
 
 Optionally, it is recommended to install Kafka if you want to use most of the dynamic analysis features.
-
+The command below also installs Postgres (way faster than SQLite). You can switch to Postgres by modifying the config.py file.
 ```shell
 cd collector
 docker-compose up -d

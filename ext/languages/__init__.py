@@ -6,6 +6,7 @@ import os
 from ext.languages.react import ReactNativeStrategy
 from ext.languages.flutter import FlutterStrategy
 from ext.languages.xamarin import XamarinStrategy
+from ext.languages.cordova import CordovaStrategy
 
 
 def check_frameworks(application_base_directory):
@@ -17,12 +18,14 @@ def check_frameworks(application_base_directory):
     :param application_base_directory:
     :return:
     """
-    builds = [ReactNativeStrategy, FlutterStrategy, XamarinStrategy]
+    builds = [ReactNativeStrategy, FlutterStrategy, XamarinStrategy, CordovaStrategy]
     for library in builds:
         runner = library(application_root=application_base_directory)
         if runner.detect():
             runner.check_fs()
             output = runner.output
+            if not output:
+                return
             decompiled_dir = os.path.join(
                 application_base_directory,
                 "decompiled"

@@ -61,6 +61,6 @@ class LibrarySecurityScanner:
 
             except pwnlib.exception.PwnlibException:
                 pass
-            except RuntimeError:
+            except Exception:
                 pass
         return out_buffer

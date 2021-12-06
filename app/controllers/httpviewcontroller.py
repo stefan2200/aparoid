@@ -66,7 +66,8 @@ def get_frida_logs(application):
             bootstrap_servers=Config.kafka_servers,
             value_deserializer=lambda m: json.loads(m.decode("utf-8")),
             auto_offset_reset='earliest',
-            group_id=None
+            group_id=None,
+            consumer_timeout_ms=1000
         )
 
         get_all = []
@@ -76,15 +77,17 @@ def get_frida_logs(application):
         connection.assign([tp])
 
         # obtain the last offset value
-        connection.seek_to_end(tp)
+        connection.seek_to_beginning([tp])
         last_entry = connection.position(tp)
 
         connection.seek_to_beginning(tp)
 
         for message in connection:
+            connection.commit()
             get_all.append(message.value)
             if message.offset == last_entry - 1:
                 break
+        connection.close()
         get_all.reverse()
     except KafkaError:
         get_all = "error"
@@ -107,7 +110,8 @@ def get_frida_logs_api(application):
         bootstrap_servers=Config.kafka_servers,
         value_deserializer=lambda m: json.loads(m.decode("utf-8")),
         auto_offset_reset='earliest',
-        group_id=None
+        group_id=None,
+        consumer_timeout_ms=1000
     )
 
     get_all = []

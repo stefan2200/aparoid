@@ -83,7 +83,8 @@ def is_blacklisted(filename):
     """
     allowed_resources = [
         ".json", ".js", ".properties", ".sh",
-        ".so", "AndroidManifest.xml", ".bin"
+        ".so", "AndroidManifest.xml", ".bin",
+        ".html"
     ]
 
     blocked_sources = [
