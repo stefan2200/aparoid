@@ -2,6 +2,7 @@
 SQLAlchemy model for HTTP request/response pairs and findings
 """
 from datetime import datetime
+import base64
 from app import db
 
 
@@ -88,4 +89,42 @@ class HTTPFinding(db.Model):
             "remote_id": self.remote_id,
             "text": self.text,
             "highlight": self.highlight
+        }
+
+
+class Screenshot(db.Model):
+    """
+    Model for storing screenshots
+    """
+    id = db.Column(db.Integer(), primary_key=True, nullable=False)
+
+    application_id = db.Column(db.String(), unique=False, nullable=False)
+    added = db.Column(db.DateTime(), nullable=False,
+                      default=datetime.utcnow)
+
+    data = db.Column(db.LargeBinary(), unique=False, nullable=False)
+
+    def __repr__(self):
+        """
+        Get object representation
+        :return:
+        """
+        return f"<{self.id}>"
+
+    def as_encoded(self):
+        """
+        Return the request response model object
+        :return:
+        """
+        return base64.b64encode(self.data).decode()
+
+    def to_obj(self):
+        """
+        Get readable object as dictionary
+        :return:
+        """
+        return {
+            "id":  self.id,
+            "added": self.added,
+            "enc": self.as_encoded()
         }

@@ -44,10 +44,22 @@
             <p class="text-success">Collector running with pid: {{ collector_running }}</p>
             <button class="btn btn-danger btn-block" onclick="kill_collector()">Disable device collector</button>
             {% endif %}
+            <div class="row mt-2 mb-2">
+                <div class="col-md-6">
+                    <button type="button" onclick="screenshot()" class="btn btn-info btn-block">
+                        Create screenshot <i class="fas fa-portrait"></i>
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <a href="{{ url_for('get_application_screenshots', application=application.identifier) }}" target="_blank" class="btn btn-info btn-block">
+                        View screenshots <i class="fas fa-images"></i>
+                    </a>
+                </div>
+            </div>
 
             <a href="{{ url_for('get_http_requests', application=application.identifier) }}" class="btn btn-block btn-warning" target="_blank">View live requests</a>
-            <a href="{{ url_for('read_fs_for', device_type=device_type, application=application.identifier) }}" class="btn btn-primary btn-block">Browse filesystem <i class="fas fa-folder"></i> </a>
-             <a href="{{ url_for('get_frida_logs', application=application.identifier) }}" class="btn btn-primary btn-block">Frida logs</i> </a>
+            <a href="{{ url_for('read_fs_for', device_type=device_type, application=application.identifier) }}"  target="_blank" class="btn btn-primary btn-block">Browse filesystem <i class="fas fa-folder"></i> </a>
+            <a href="{{ url_for('get_frida_logs', application=application.identifier) }}"  target="_blank" class="btn btn-primary btn-block">Frida logs</i> </a>
         </div>
 
         <div class="col-lg-8">
@@ -97,6 +109,14 @@
             if(!data.status) {
                 alert("Unable to kill proxy. Please consult the application logs for more details");
             } else { window.location.reload(); }
+        });
+    }
+
+    function screenshot() {
+        $.getJSON('{{ url_for('dynamic_screenshot', application_id=application.identifier, device_uuid=device_uuid) }}', function(data){
+            if(data.status) {
+                alert("Screenshot saved.");
+            } else { alert("Unable to create or save screenshot."); }
         });
     }
 

@@ -19,6 +19,7 @@ class XamarinStrategy:
         "System.",
         "Mono."
     ]
+    name = "Xamarin"
 
     def __init__(self, application_root):
         self.root_dir = application_root

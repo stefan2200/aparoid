@@ -17,7 +17,7 @@ def get_files(root_directory):
 
 class CordovaStrategy:
     """
-    Class for finding useful strings in React applications
+    Class for finding and deobfuscating Cordova JavaScript files
     """
     root_dir = None
     cordova_directory = None
@@ -29,7 +29,7 @@ class CordovaStrategy:
 
     def detect(self):
         """
-        Wait. dis React?
+        Check if the framework is Cordova
         :return:
         """
         self.cordova_directory = os.path.join(

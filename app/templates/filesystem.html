@@ -2,11 +2,18 @@
 {% block styles %}
 <link href="/static/css/ui.fancytree.min.css" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="/static/highlight.js/styles/github-dark.min.css">
+<style>
+  span.ws-wrap span.fancytree-title {
+    white-space: normal;
+  }
+  span.ws-nowrap span.fancytree-title { white-space: nowrap; }
+  span.ws-pre span.fancytree-title { white-space: pre; }
+</style>
 {% endblock %}
 {% block content %}
 {% include 'topmenu.html' %}
     <div class="row">
-        <div class="col-lg-12">
+        <div class="col-lg-12  mt-2">
             <div class="card" id="form-groups">
                 <div class="card-header" id="headingOne">
                   <h2 class="mb-0">
@@ -101,10 +108,25 @@ result = [];
 filesystem.reduce((r, path) => {
    path.split('/').reduce((o, title) => {
       var temp = (o.children = o.children || []).find(q => q.title === title);
-      if(o.children) o["folder"] = true;
-      if (!temp) o.children.push(temp = {
-         title
-      });
+      if(o.children) {
+        o["folder"] = true;
+      }
+      if (!temp) {
+        o.children.push(temp = {
+            title
+        });
+      }
+      if(!temp.folder) {
+        if(temp.title.endsWith(".java")) {
+            temp.icon = "fas fa-file-code";
+        } else if(temp.title.endsWith(".json")) {
+            temp.icon = "fas fa-cogs";
+        } else if(temp.title.endsWith(".xml")) {
+            temp.icon = "fas fa-code";
+        } else if(temp.title.endsWith(".so")) {
+            temp.icon = "fas fa-terminal";
+        }
+      }
       return temp;
    }, r);
    return r;
@@ -116,6 +138,7 @@ $("#tree").fancytree({
   source: result,
   icon:true,
   clickFolderMode: 2,
+  autoScroll: true,
   activate: function(event, data){
     var node = data.node;
     var create_path = [];
@@ -138,7 +161,14 @@ $("#tree").fancytree({
     }
   }
 });
+var node = $.ui.fancytree.getTree("#tree").getRootNode();
+var cmp = function(a, b) {
+    var x = (a.folder ? "0" : "1") + a.title.toLowerCase(),
+    y = (b.folder ? "0" : "1") + b.title.toLowerCase();
+    return x === y ? 0 : x > y ? 1 : -1;
+};
 
+node.sortChildren(cmp, true);
 function on_source_load(source_data) {
     $('#source').html('<pre><code>' + $("<div>").text(source_data.data).html() + '</code></pre>');
     hljs.highlightAll();

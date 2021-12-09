@@ -10,7 +10,7 @@ from kafka.errors import KafkaError
 from sqlalchemy import and_
 from app import flask, db
 
-from app.models.file import (HTTPModel, HTTPFinding)
+from app.models.file import (HTTPModel, HTTPFinding, Screenshot)
 from config import Config
 
 
@@ -97,6 +97,38 @@ def get_frida_logs(application):
         application=application,
         frida_logs=get_all
     )
+
+
+@flask.route("/dynamic/screenshots/<application>", methods=["GET"])
+def get_application_screenshots(application):
+    """
+    Get stored screenshots for a specific application
+    :param application:
+    :return:
+    """
+    get_all = Screenshot.query.filter(
+        Screenshot.application_id == application
+    ).all()
+
+    out_obj = [get_obj.to_obj() for get_obj in get_all]
+
+    return render_template(
+        "dynamic/screenshots.html",
+        application=application,
+        images=out_obj
+    )
+
+
+@flask.route("/dynamic/api/logs/<screenshot_id>", methods=["GET"])
+def remove_screenshot(screenshot_id):
+    """
+    Remove screenshot with id
+    """
+    Screenshot.query.filter(
+        Screenshot.id == screenshot_id
+    ).delete()
+    db.session.commit()
+    return jsonify({"result": True})
 
 
 @flask.route("/dynamic/api/logs/<application>", methods=["GET"])

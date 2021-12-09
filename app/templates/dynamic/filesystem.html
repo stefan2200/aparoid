@@ -29,6 +29,15 @@ filesystem.reduce((r, path) => {
       if (!temp) o.children.push(temp = {
          title
       });
+      if(!temp.folder) {
+        if(temp.title.endsWith(".db")) {
+            temp.icon = "fas fa-database";
+        } else if(temp.title.endsWith(".json")) {
+            temp.icon = "fas fa-cogs";
+        } else if(temp.title.endsWith(".xml")) {
+            temp.icon = "fas fa-code";
+        }
+      }
       return temp;
    }, r);
    return r;

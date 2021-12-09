@@ -1,6 +1,8 @@
 """
 Messy wrapper for ADB commands
 """
+import random
+import string
 import shutil
 import subprocess
 import hashlib
@@ -599,6 +601,37 @@ def get_strategy_for(device_type):
     if device_type == "emulated":
         return SystemRoot(adb_path=adb_path, devel_image=True)
     return SystemRoot(adb_path=adb_path, devel_image=False)
+
+
+def screenshot(device_uuid, local_file=None):
+    """
+    Create a screenshot, save it to the sdcard and return the name
+    adb shell screencap -p /sdcard/$name
+    :param device_uuid:
+    :param local_file:
+    :return:
+    """
+    adb_path = Config.adb_path
+    if not adb_path:
+        adb_path = shutil.which('adb')
+    random_filename = ''.join(
+        [random.choice(string.ascii_lowercase) for _ in range(10)]
+    )
+    out_file = f"/sdcard/{random_filename}.png"
+    strategy = ADBStrategy(adb_path=adb_path)
+    strategy.device = device_uuid
+    strategy.run([
+        "shell",
+        "screencap",
+        out_file
+    ])
+    if local_file:
+        strategy.run([
+            "pull",
+            out_file,
+            local_file
+        ])
+    return out_file
 
 
 def remove_certificate(device_uuid, selected_strategy, certificate_location):

@@ -2,8 +2,8 @@
 
 {% block content %}
     {% include 'topmenu.html' %}
-    <div class="row mt-2">
-            <div class="col-lg-12">
+    <div class="row">
+            <div class="col-lg-12 mt-2">
                 <form class="form-inline" method="get">
                   <div class="form-group mb-2">
                       <select name="severity" class="form-control">
@@ -43,7 +43,7 @@
                         <a href="#" onclick="list_vuln({{ vuln.id }})"><i class="fas fa-question-circle text-info"></i> </a>
                     </td>
                     <td><span class="badge badge-{{ vuln.severity }}"> {{ vuln.severity }}</span></td>
-                    <td>{{ vuln.highlight }}</td>
+                    <td>{% if vuln.highlight | length > 70 %} {{ vuln.highlight[0:70] }}...{% else %}{{ vuln.highlight[0:75] }}{% endif %}</td>
                     <td><a href="{{ url_for('get_folder_structure', app_id=app_id) }}?vuln={{ vuln.id }}">{{ vuln.filename }}:{{ vuln.file_line }}</a></td>
                     <td>{{ vuln.mobile_asvs }}</td>
                 </tr>

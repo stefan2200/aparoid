@@ -1,3 +1,9 @@
+## Version 0.1.13
+- Improved folder icons in static / dynamic file browser
+- More verbose info when a framework is detected
+- Added functionality to create and view screenshots
+- Added the possibility to set RegEx capture groups using the web interface
+
 ## Version 0.1.12
 - Fixed docker-compose service start
 - Added "strings" like feature for binary files

@@ -161,7 +161,11 @@ def set_database_entry():
         if not get_match:
             break
         get_pattern = request.form.get(f"pattern[{start_match}]", None)
-        matches.append({"search": get_match, "match": get_pattern})
+        build_match = {"search": get_match, "match": get_pattern}
+        get_group = request.form.get(f"group[{start_match}]", None)
+        if get_group is not None and build_match == "regex":
+            build_match["group"] = int(get_group)
+        matches.append(build_match)
         start_match += 1
 
     structure = {

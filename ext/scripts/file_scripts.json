@@ -1,6 +1,6 @@
 {
     "name": "DyStr static file checks",
-    "version": 1.42,
+    "version": 1.43,
     "matches": [
         {
             "key": "src.writes_storage",
@@ -13,11 +13,13 @@
             "patterns": [
                 {
                     "search": "contains",
-                    "match": "android.permission.WRITE_EXTERNAL_STORAGE"
+                    "match": "android.permission.WRITE_EXTERNAL_STORAGE",
+                    "group": 0
                 },
                 {
                     "search": "contains",
-                    "match": "Manifest.permission.WRITE_EXTERNAL_STORAGE"
+                    "match": "Manifest.permission.WRITE_EXTERNAL_STORAGE",
+                    "group": 0
                 }
             ]
         },
@@ -89,14 +91,15 @@
             "key": "src.jwt",
             "text": "Possible JWT found",
             "description": "The application is possible using base64 encoded JSON. This might be an indication that a hard-coded JSON web token is stored in the source code",
+            "mobile_asvs": "",
             "search_type": "multi",
-            "masvs": null,
-            "search_location": "",
             "severity": "info",
+            "search_location": "",
             "patterns": [
                 {
                     "search": "regex",
-                    "match": "[\"'>](eyJ.+?)[\"'<]"
+                    "match": "[\"'>](eyJ.+?)[\"'<]",
+                    "group": 1
                 }
             ]
         },

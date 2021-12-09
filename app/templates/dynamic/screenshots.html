@@ -1,0 +1,48 @@
+
+{% extends 'layout.html' %}
+{% block styles %}
+<style>
+.gallery
+{
+    display: inline-block;
+    margin-top: 20px;
+}
+</style>
+{% endblock %}
+{% block content %}
+
+<div class="card card-default">
+  <div class="card-heading">
+    <h3 class="card-title">Screenshots for {{ application }}</h3>
+  </div>
+  <div class="card-body">
+    {% for image in images %}
+    <div class="col-md-3 col-lg-3" id="screenshot-{{ image.id }}">
+    <figure>
+        <figcaption>
+            <h4>{{ image.added }}</h4>
+            <div class="float-right">
+                <a href="#" onclick="remove_screenshot({{ image.id }});">
+                    <i title="Remove" class="fas fa-trash text-danger"></i>
+                </a>
+            </div>
+        </figcaption>
+        <img class="img-responsive" style="width: 300px;" alt="" src="data:image/png;base64, {{ image.enc }}"/>
+    </figure>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
+{% block subscripts %}
+<script>
+function remove_screenshot(screenshot_id){
+    var compile_url = "{{ url_for('remove_screenshot', screenshot_id=":screenshot_id") }}";
+    var send_url = compile_url.replace(":screenshot_id", screenshot_id);
+    $.getJSON(send_url, function(data){
+        $("#screenshot-"+screenshot_id).remove();
+    });
+}
+</script>
+{% endblock %}

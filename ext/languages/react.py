@@ -9,6 +9,7 @@ class ReactNativeStrategy:
     root_dir = None
     react_file = None
     output = {}
+    name = "React Native"
 
     def __init__(self, application_root):
         self.root_dir = application_root

@@ -32,6 +32,7 @@ class FlutterStrategy:
     root_dir = None
     flutter_dir = None
     output = {}
+    name = "Flutter"
 
     def __init__(self, application_root):
         self.root_dir = application_root

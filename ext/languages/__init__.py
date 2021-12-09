@@ -39,3 +39,16 @@ def check_frameworks(application_base_directory):
                 to_file = os.path.join(decompiled_dir, output_file)
                 with open(to_file, mode='wb') as write_output:
                     write_output.write(write_file)
+
+
+def get_framework_active(application_base_directory):
+    """
+    Get a list of found frameworks
+    """
+    active_frameworks = []
+    builds = [ReactNativeStrategy, FlutterStrategy, XamarinStrategy, CordovaStrategy]
+    for library in builds:
+        runner = library(application_root=application_base_directory)
+        if runner.detect():
+            active_frameworks.append(runner.name)
+    return active_frameworks

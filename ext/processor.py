@@ -14,7 +14,7 @@ from ext.apkutils import process
 from ext.jadx_tools import JTool
 from ext.security import LibrarySecurityScanner
 
-from ext.languages import check_frameworks
+from ext.languages import check_frameworks, get_framework_active
 from ext.source_analyser import FileRunner
 
 
@@ -27,8 +27,9 @@ class ApplicationProcessor:
     endpoint = None
     source_location = None
     sources_directory = "sources"
+    options = []
 
-    def __init__(self, endpoint, apk_checksum, apk_location):
+    def __init__(self, endpoint, apk_checksum, apk_location, options=None):
         """
         Set the application information
         :param endpoint:
@@ -39,6 +40,8 @@ class ApplicationProcessor:
         self.endpoint = endpoint
         self.apk_checksum = apk_checksum
         self.source_location = os.path.join(self.sources_directory, self.apk_checksum)
+        if options:
+            self.options = options
         Reporter.push_log(
             endpoint=endpoint,
             key="info:analysis.start",
@@ -75,8 +78,8 @@ class ApplicationProcessor:
             os.mkdir(self.sources_directory)
         if not os.path.exists(self.source_location):
             os.mkdir(self.source_location)
-
-        shutil.copyfile(self.apk_location, apk_output)
+        if "no-store" not in self.options:
+            shutil.copyfile(self.apk_location, apk_output)
 
         Reporter.push_log(
             endpoint=self.endpoint,
@@ -129,7 +132,7 @@ class ApplicationProcessor:
                     endpoint=self.endpoint,
                     key="info:stored.icon",
                     application_id=self.apk_checksum,
-                    text="Storing icon {icon}"
+                    text=f"Storing icon {icon}"
                 )
                 with open(icon_location, "rb") as read_icon:
                     apk_data["common"]["icon_data"] = base64.b64encode(
@@ -145,7 +148,7 @@ class ApplicationProcessor:
                     endpoint=self.endpoint,
                     key="info:stored.icon",
                     application_id=self.apk_checksum,
-                    text="Storing icon {icon}"
+                    text=f"Storing icon {icon}"
                 )
                 with open(icon_location, "rb") as read_icon:
                     apk_data["common"]["icon_data"] = base64.b64encode(
@@ -164,6 +167,11 @@ class ApplicationProcessor:
                 binary_files.append(filename)
             if filename.endswith(".dll"):
                 binary_files.append(filename)
+            basename = os.path.basename(filename)
+            if "." not in basename:
+                file_data = magic.from_file(filename)
+                if "elf" in file_data.lower():
+                    binary_files.append(filename)
 
         Reporter.push_log(
             endpoint=self.endpoint,
@@ -191,7 +199,16 @@ class ApplicationProcessor:
             application_id=self.apk_checksum,
             text="Checking Framework files"
         )
-        check_frameworks(application_base_directory=self.source_location)
+        active_frameworks = get_framework_active(application_base_directory=self.source_location)
+        if active_frameworks:
+            Reporter.push_log(
+                endpoint=self.endpoint,
+                key="info:frameworks.found",
+                application_id=self.apk_checksum,
+                text=f"Framework(s) found: {', '.join(active_frameworks)}. "
+                     "Running additional checks"
+            )
+            check_frameworks(application_base_directory=self.source_location)
 
         Reporter.push_log(
             endpoint=self.endpoint,
@@ -253,14 +270,15 @@ class ApplicationProcessor:
             application_id=self.apk_checksum
         )
 
-        Reporter.push_log(
-            endpoint=self.endpoint,
-            key="info:analysis.clean",
-            application_id=self.apk_checksum,
-            text="Cleaning directories"
-        )
+        if "no-clean" not in self.options:
+            Reporter.push_log(
+                endpoint=self.endpoint,
+                key="info:analysis.clean",
+                application_id=self.apk_checksum,
+                text="Cleaning directories"
+            )
 
-        shutil.rmtree(self.source_location)
+            shutil.rmtree(self.source_location)
 
         Reporter.push_log(
             endpoint=self.endpoint,
@@ -270,12 +288,13 @@ class ApplicationProcessor:
         )
 
 
-def threaded_processor(endpoint, apk_checksum, apk_location):
+def threaded_processor(endpoint, apk_checksum, apk_location, options):
     """
     Starts the thread for the ApplicationProcessor class
     :param endpoint:
     :param apk_checksum:
     :param apk_location:
+    :param options:
     :return:
     """
     local_dir = os.path.dirname(__file__)
@@ -284,7 +303,8 @@ def threaded_processor(endpoint, apk_checksum, apk_location):
         ApplicationProcessor(
             endpoint,
             apk_checksum,
-            apk_location
+            apk_location,
+            options
         ).run()
     except Exception as parse_exception:
         Reporter.push_log(
@@ -296,18 +316,19 @@ def threaded_processor(endpoint, apk_checksum, apk_location):
         print(f"APK parse exception: {str(parse_exception)}")
 
 
-def initialize(endpoint, apk_checksum, apk_location, wait=False):
+def initialize(endpoint, apk_checksum, apk_location, wait=False, options=None):
     """
     Actual thread start, the comment above was a lie
     :param endpoint:
     :param apk_checksum:
     :param apk_location:
     :param wait:
+    :param options:
     :return:
     """
     start_thread = threading.Thread(
         target=threaded_processor,
-        args=(endpoint, apk_checksum, apk_location)
+        args=(endpoint, apk_checksum, apk_location, options)
     )
     start_thread.start()
     if wait:
