@@ -59,36 +59,65 @@
 
             <a href="{{ url_for('get_http_requests', application=application.identifier) }}" class="btn btn-block btn-warning" target="_blank">View live requests</a>
             <a href="{{ url_for('read_fs_for', device_type=device_type, application=application.identifier) }}"  target="_blank" class="btn btn-primary btn-block">Browse filesystem <i class="fas fa-folder"></i> </a>
-            <a href="{{ url_for('get_frida_logs', application=application.identifier) }}"  target="_blank" class="btn btn-primary btn-block">Frida logs</i> </a>
+            <a href="{{ url_for('get_frida_logs', application=application.identifier) }}"  target="_blank" class="btn btn-primary btn-block">Frida logs</a>
+
+            <div class="row mt-2 mb-2">
+                <div class="col-md-10">
+                    <input class="form-control" id="send-text" placeholder="Send text to device">
+                </div>
+                <div class="col-md-2">
+                    <a href="#" onclick="send_text();" class="btn btn-info btn-block">
+                        Send
+                    </a>
+                </div>
+            </div>
         </div>
 
         <div class="col-lg-8">
-            <form method="post" action="{{ url_for('frida_build_scripts', device_type=device_type, device_uuid=device_uuid, application=application.identifier) }}">
-            <div class="form-check">
-              <input class="form-check-input" name="ssl_unpin" type="checkbox" value="1" id="bypass_ssl_pin">
-              <label class="form-check-label" for="bypass_ssl_pin">
-                Bypass SSL pinning
-              </label>
+            <div class="row">
+                <div class="col-lg-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <td>DateTime</td>
+                            <td>Action</td>
+                            <td>Text</td>
+                        </thead>
+                        <tbody id="log-data">
+
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="form-check">
-              <input class="form-check-input" name="root_bypass" type="checkbox" value="1" id="bypass_root_check">
-              <label class="form-check-label" for="bypass_root_check">
-                Bypass root detection
-              </label>
+            <div class="row">
+                <div class="col-lg-12">
+                    <form method="post" action="{{ url_for('frida_build_scripts', device_type=device_type, device_uuid=device_uuid, application=application.identifier) }}">
+                    <div class="form-check">
+                      <input class="form-check-input" name="ssl_unpin" type="checkbox" value="1" id="bypass_ssl_pin">
+                      <label class="form-check-label" for="bypass_ssl_pin">
+                        Bypass SSL pinning
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" name="root_bypass" type="checkbox" value="1" id="bypass_root_check">
+                      <label class="form-check-label" for="bypass_root_check">
+                        Bypass root detection
+                      </label>
+                    </div>
+                    <div class="form-check">
+                      <input class="form-check-input" name="debug_bypass" type="checkbox" value="1" id="bypass_debug">
+                      <label class="form-check-label" for="bypass_debug">
+                        Bypass debug detection
+                      </label>
+                    </div>
+                    <textarea name="script_data" class="form-control" rows="8" placeholder="Enter custom script data"></textarea>
+                        <br />
+                        <input type="submit" class="btn btn-info btn-block" value="Build scripts">
+                    </form>
+                    <hr />
+                    Current Script:
+                    <pre><code>{{ frida_blob }}</code></pre>
+                </div>
             </div>
-            <div class="form-check">
-              <input class="form-check-input" name="debug_bypass" type="checkbox" value="1" id="bypass_debug">
-              <label class="form-check-label" for="bypass_debug">
-                Bypass debug detection
-              </label>
-            </div>
-            <textarea name="script_data" class="form-control" rows="8" placeholder="Enter custom script data"></textarea>
-                <br />
-                <input type="submit" class="btn btn-info btn-block" value="Build scripts">
-            </form>
-            <hr />
-            Current Script:
-            <pre><code>{{ frida_blob }}</code></pre>
         </div>
     </div>
 {% endblock content %}
@@ -97,6 +126,12 @@
 <script src="/static/highlight.js/highlight.min.js"></script>
 <script>hljs.highlightAll();</script>
 <script>
+    function send_text() {
+        var text_to_send = $('#send-text').val();
+        $.getJSON("{{ url_for('adb_send_text', device_uuid=device_uuid) }}?text="+encodeURIComponent(text_to_send), function(data){
+
+        });
+    }
     function start_proxy() {
         $.getJSON('{{ url_for('dynamic_start_proxy', application=application.identifier) }}', function(data){
             if(!data.status) {
@@ -200,5 +235,20 @@
             } else { window.location.reload(); }
         });
     }
+    last_logs = [];
+    function read_logs() {
+        if(!document.hasFocus()) {
+            setTimeout(read_logs, 4000);
+            return;
+        }
+        $.getJSON("{{ url_for('get_logs_json') }}", function(data){
+            $('#log-data').html("");
+            $.each(data, function(key, value){
+                $('#log-data').append('<tr><td>'+value.added+'</td><td>'+value.key+'</td><td>'+$('<div/>').text(value.data).html()+'</td></tr>');
+            });
+        });
+        setTimeout(read_logs, 4000);
+    }
+    read_logs();
 </script>
 {% endblock %}

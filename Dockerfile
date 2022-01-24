@@ -26,6 +26,7 @@ WORKDIR /app
 RUN apt clean && apt autoclean && apt autoremove -y
 
 COPY . .
+RUN chmod +x setup.sh start.sh
 RUN ./setup.sh docker
 ARG CONTAINERCONFIG
 RUN if [ "$CONTAINERCONFIG" = "enabled" ]; \

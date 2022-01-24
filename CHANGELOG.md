@@ -1,3 +1,12 @@
+## Version 0.1.14
+- Option to send keystrokes or text as device input
+- Fixed Dockerfile on *nix systems
+- Added lxml as a required dependency
+- Persistent dynamic analysis logs
+- Option to download static and device files
+- Fixed the frida kafka mess
+- Mild bug fixing
+
 ## Version 0.1.13
 - Improved folder icons in static / dynamic file browser
 - More verbose info when a framework is detected

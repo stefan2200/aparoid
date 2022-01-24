@@ -8,7 +8,7 @@ import lz4.block
 
 class XamarinStrategy:
     """
-    Class for finding useful strings in Flutter applications
+    Class for decompressing Xamarin assemblies
     """
     root_dir = None
     assemblies_dir = None

@@ -40,8 +40,6 @@ services:
   aparoid:
     container_name: Aparoid
     privileged: true
-    devices:
-      - '/dev:/dev'
     build:
       context: .
       dockerfile: Dockerfile

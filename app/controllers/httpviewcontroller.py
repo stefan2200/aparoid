@@ -77,13 +77,12 @@ def get_frida_logs(application):
         connection.assign([tp])
 
         # obtain the last offset value
-        connection.seek_to_beginning([tp])
+        connection.seek_to_beginning()
         last_entry = connection.position(tp)
 
         connection.seek_to_beginning(tp)
 
         for message in connection:
-            connection.commit()
             get_all.append(message.value)
             if message.offset == last_entry - 1:
                 break

@@ -168,7 +168,7 @@ def async_start(app_id):
     :return:
     """
     if os.name == 'nt':
-        pid = subprocess.Popen([sys.executable, __file__, app_id], creationflags=0x00000008)
+        pid = subprocess.Popen([sys.executable, __file__, app_id])
     else:
         pid = subprocess.Popen([sys.executable, __file__, app_id])
     return pid.pid

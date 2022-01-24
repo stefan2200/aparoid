@@ -2,9 +2,10 @@
 Module to read files stored by the static analyser
 """
 import json
+import os.path
 import string
 
-from flask import (render_template, request, jsonify)
+from flask import (render_template, request, jsonify, make_response)
 from app import flask
 from ext.frida_utils import auto_method_patcher
 
@@ -111,6 +112,27 @@ def get_raw_file(app_id):
         entry["data"] = data_out
 
     return jsonify(entry)
+
+
+@flask.route("/download_file/<app_id>", methods=["GET"])
+def download_raw_file(app_id):
+    """
+    Download a single file from the database
+    :param app_id:
+    :return:
+    """
+    selected = request.args.get("file")
+    get_apk_data = MobileFile.query.filter(
+        MobileFile.application_id == app_id
+    ).filter(MobileFile.name == selected)
+
+    entry = get_apk_data.first().readable()
+    get_basename = os.path.basename(entry['filename'])
+    headers = {
+        "Content-Disposition": "attachment; filename=%s" % get_basename
+    }
+
+    return make_response((entry['data'], headers))
 
 
 @flask.route("/get_strings/<app_id>", methods=["GET"])

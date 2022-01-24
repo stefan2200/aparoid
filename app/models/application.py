@@ -149,3 +149,42 @@ class MobileApplicationFlow(db.Model):
             key=self.key,
             data=self.data
         )
+
+
+class DynamicApplicationLog(db.Model):
+    """
+    Dynamic application log Model
+    """
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(245), unique=False, nullable=False)
+    application_id = db.Column(db.String(40), unique=False, nullable=True)
+    added = db.Column(db.DateTime, nullable=False,
+                      default=datetime.utcnow)
+    data = db.Column(db.Text(), unique=False, nullable=True)
+
+    def __init__(self, key, application=None, data=None):
+        """
+        Create the log object
+        """
+        self.key = key
+        self.application_id = application
+        self.data = data
+
+
+    def __repr__(self):
+        """
+        Return representation of the object
+        :return:
+        """
+        return f"<{self.key}>"
+
+    def readable(self):
+        """
+        Get readable instance of the File
+        :return:
+        """
+        return dict(
+            key=self.key,
+            data=self.data,
+            added=self.added
+        )

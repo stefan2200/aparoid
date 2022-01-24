@@ -49,7 +49,7 @@ def async_start(app_id, use_kafka=True):
     if not use_kafka:
         start_args.append("--no-kafka")
     if os.name == 'nt':
-        pid = subprocess.Popen(start_args, creationflags=0x00000008)
+        pid = subprocess.Popen(start_args)
     else:
         pid = subprocess.Popen(start_args)
     time.sleep(1)

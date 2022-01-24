@@ -9,6 +9,7 @@
         <div id="tree"></div>
     </div>
     <div class="col-lg-8">
+        <button id="show-dl" class="btn btn-info btn-block mb-1" onclick="download_last_file();" type="button">Download <i class="fas fa-download"></i> </button>
         <div id="source"></div>
     </div>
 </div>
@@ -20,6 +21,7 @@
 <script>
 
 var filesystem = {{ fs | safe }};
+var selected_file = null;
 result = [];
 
 filesystem.reduce((r, path) => {
@@ -61,6 +63,7 @@ $("#tree").fancytree({
     var new_path = create_path.join("/");
     var enc = encodeURIComponent(new_path);
     $.getJSON("{{ url_for('get_dynamic_file', application=application) }}?file=" + enc, function(data) {
+        selected_file = enc;
         on_source_load(data);
     });
   },
@@ -70,6 +73,12 @@ $("#tree").fancytree({
     }
   }
 });
+
+
+function download_last_file() {
+    if(!selected_file) return;
+    document.location = "{{ url_for('get_dynamic_file', application=application) }}?download=1&file=" + selected_file;
+}
 
 function on_source_load(source_data) {
     $('#source').html('<pre><code>' + $("<div>").text(source_data.data).html() + '</code></pre>');

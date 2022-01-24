@@ -60,7 +60,7 @@ class ADBStrategy:
     adb_path = None
     device = None
 
-    def __init__(self, adb_path):
+    def __init__(self, adb_path=None):
         """
         Build the class and set adb_path
         :param adb_path:
@@ -136,14 +136,17 @@ class ADBStrategy:
         :param arguments:
         :return:
         """
-        arguments.insert(0, self.adb_path)
+        adb_path = Config.adb_path
+        if not adb_path:
+            adb_path = shutil.which('adb')
+        arguments.insert(0, adb_path)
         if self.device:
             arguments.insert(1, "-s")
             arguments.insert(2, self.device)
 
         logging.debug("ADB: %s", " ".join(arguments))
         proc = subprocess.run(
-            executable=self.adb_path,
+            executable=adb_path,
             args=arguments,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
@@ -611,14 +614,11 @@ def screenshot(device_uuid, local_file=None):
     :param local_file:
     :return:
     """
-    adb_path = Config.adb_path
-    if not adb_path:
-        adb_path = shutil.which('adb')
     random_filename = ''.join(
         [random.choice(string.ascii_lowercase) for _ in range(10)]
     )
     out_file = f"/sdcard/{random_filename}.png"
-    strategy = ADBStrategy(adb_path=adb_path)
+    strategy = ADBStrategy()
     strategy.device = device_uuid
     strategy.run([
         "shell",
@@ -715,6 +715,7 @@ def check_root(device_uuid, selected_strategy):
         strategy.runner.device = device_uuid
     executed = strategy.get_command_output(["id"])
     if not executed:
+        time.sleep(1)
         executed = strategy.get_command_output(["id"])
     return executed and "0(root)" in executed
 
@@ -769,3 +770,19 @@ def start_frida(device_uuid, selected_strategy):
     check_frida_running = strategy.get_command_output(["ps"])
     frida_running = "frida-server" in check_frida_running
     return frida_running
+
+
+def send_keystroke(device_uuid, text):
+    """
+    Send a specific keystroke to the device
+    """
+    strategy = ADBStrategy()
+    strategy.device = device_uuid
+    to_escape = "()<>|;&*\\~\"'"
+
+    for char in to_escape:
+        text = text.replace(char, f"\\{char}")
+    text = f'"{text}"'
+    strategy.run(
+        ["shell", "input", "text", text]
+    )

@@ -1,9 +1,6 @@
 ext/tools
 certs/
 app/*.db
-todo.txt
-treetest.py
-updater.py
 venv/
 .idea/
 cache/
@@ -11,3 +8,5 @@ ext/sources/
 ext/scripts/file_scripts-*
 **/__pycache__/
 ext/frida_scripts/frida-combined-*
+/dist/
+/aparoid.egg-info/

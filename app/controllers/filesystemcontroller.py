@@ -9,10 +9,32 @@ import tarfile
 import sqlite3
 import pathlib
 import magic
-from flask import render_template, request, jsonify, redirect, url_for
+from flask import (render_template, request, jsonify, redirect, url_for, make_response)
 from app import flask
 
 from ext.adb import get_strategy_for
+
+
+def strings(data: bytes, min_string_length=4):
+    """
+    Python equivalent of the Linux strings command
+    :param data:
+    :param min_string_length:
+    :return:
+    """
+    output = []
+    result = ""
+    char_pool = [ord(x) for x in string.printable]
+    for character in data:
+        if character in char_pool:
+            result += chr(character)
+            continue
+        if len(result) >= min_string_length:
+            output.append(result)
+        result = ""
+    if len(result) >= min_string_length:
+        output.append(result)
+    return output
 
 
 def get_file_tree(output_directory, basedir):
@@ -47,7 +69,10 @@ class SQLiteParser:
         """
         dict_f = {}
         for idx, col in enumerate(cursor.description):
-            dict_f[col[0]] = row[idx]
+            row_data = row[idx]
+            if isinstance(row_data, bytes):
+                row_data = row_data.decode()
+            dict_f[col[0]] = row_data
         return dict_f
 
     @staticmethod
@@ -72,8 +97,15 @@ class SQLiteParser:
         """
         conn, curs = SQLiteParser.open_database(db_file_path)
         conn.row_factory = SQLiteParser.dict_factory
-        curs.execute(f"SELECT * FROM {table_name}")
-        results = curs.fetchall()
+        try:
+            curs.execute(f"SELECT * FROM {table_name}")
+            results = curs.fetchall()
+        except sqlite3.Error:
+            # Possibly malformed data or table
+            results = {
+                "error": "Data incomplete"
+            }
+            pass
         conn.close()
         return results
 
@@ -217,6 +249,7 @@ def get_dynamic_file(application):
     :return:
     """
     selected_file = request.args.get("file", None)
+    as_download = request.args.get("download", None)
     dir_name = os.path.join(
         os.path.dirname(__file__),
         f"..{os.path.sep}",
@@ -237,6 +270,8 @@ def get_dynamic_file(application):
             file_data = read_file.read()
     except FileNotFoundError:
         return jsonify({"data": "Unable to open file"})
+    if as_download:
+        return make_response((file_data, os.path.basename(comb)))
     mime = magic.from_file(comb)
     if "SQLite" in mime:
         file_data = SQLiteParser.to_ugly(SQLiteParser.to_json(comb))
@@ -244,7 +279,9 @@ def get_dynamic_file(application):
         try:
             file_data = file_data.decode()
         except UnicodeDecodeError:
-            file_data = "Binary file"
+            new_data = "This is a binary file, non-readable sections were removed\n\n"
+            new_data += "\n".join(strings(file_data))
+            file_data = new_data
     try:
         file_data = json.dumps(
             json.loads(file_data),

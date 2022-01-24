@@ -14,9 +14,9 @@ from ext.adb import (ADBStrategy, get_device_information,
                      start_frida, screenshot,
                      install_certificate, remove_certificate,
                      do_proxy_stuff, check_root, download_package,
-                     install_package)
+                     install_package, send_keystroke)
 
-from app.models.application import MobileApplication
+from app.models.application import MobileApplication, DynamicApplicationLog
 from app.models.file import Screenshot
 from config import Config
 import ext.httpsec.http_processor
@@ -147,11 +147,23 @@ def install_application_on_device(device_type, device_uuid, application_id):
     )
 
     if not result:
+        log = DynamicApplicationLog(
+            key="AppInstall",
+            data="Failed installing application on device"
+        )
+        db.session.add(log)
+        db.session.commit()
         return jsonify({
             "status": False,
             "error": "Unable to install application on device."
         })
 
+    log = DynamicApplicationLog(
+        key="AppInstall",
+        data=f"Installed application {get_apk.name} on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({
         "status": result
     })
@@ -167,11 +179,18 @@ def dynamic_install_cert(device_uuid, device_type):
     :param device_type:
     :return:
     """
+    get_location = get_cert_location()
     install_certificate(
         device_uuid=device_uuid,
         selected_strategy=device_type,
-        certificate_location=get_cert_location()
+        certificate_location=get_location
     )
+    log = DynamicApplicationLog(
+        key="CertInstall",
+        data=f"Installed certificate {get_location} on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -183,11 +202,18 @@ def dynamic_remove_cert(device_uuid, device_type):
     :param device_type:
     :return:
     """
+    get_location = get_cert_location()
     remove_certificate(
         device_uuid=device_uuid,
         selected_strategy=device_type,
-        certificate_location=get_cert_location()
+        certificate_location=get_location
     )
+    log = DynamicApplicationLog(
+        key="CertRemove",
+        data="Removed certificate {get_location} on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -204,6 +230,12 @@ def dynamic_enable_device_proxy(device_uuid, device_type):
         selected_strategy=device_type,
         disable=False
     )
+    log = DynamicApplicationLog(
+        key="ProxyEnable",
+        data="Enabled proxy server on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -240,6 +272,12 @@ def dynamic_screenshot(device_uuid, application_id):
         db.session.add(save)
         db.session.commit()
     logging.info("Saved screenshot with id %d", save.id)
+    log = DynamicApplicationLog(
+        key="Screenshot",
+        data=f"Saved screenshot with id {save.id}"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True, "file": save_file, "remote": save.id})
 
 
@@ -256,6 +294,12 @@ def dynamic_disable_device_proxy(device_uuid, device_type):
         selected_strategy=device_type,
         disable=True
     )
+    log = DynamicApplicationLog(
+        key="ProxyDisable",
+        data="Disabled proxy server on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -269,6 +313,12 @@ def dynamic_start_proxy(application):
     :return:
     """
     async_start(application)
+    log = DynamicApplicationLog(
+        key="ProxyStart",
+        data="Starting proxy server"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -279,6 +329,12 @@ def dynamic_stop_proxy(application):
     :param application:
     :return:
     """
+    log = DynamicApplicationLog(
+        key="ProxyStop",
+        data="Stopping proxy server"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": async_kill(application)})
 
 
@@ -292,6 +348,12 @@ def dynamic_start_collector(application):
     :return:
     """
     ext.httpsec.http_processor.async_start(application)
+    log = DynamicApplicationLog(
+        key="CollectorStart",
+        data="Starting collector service"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": True})
 
 
@@ -302,6 +364,12 @@ def dynamic_stop_collector(application):
     :param application:
     :return:
     """
+    log = DynamicApplicationLog(
+        key="CollectorStop",
+        data="Stopping collector service"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({"status": ext.httpsec.http_processor.async_kill(application)})
 
 
@@ -315,9 +383,29 @@ def start_frida_for_device(device_type, device_uuid):
     :return:
     """
     result = start_frida(selected_strategy=device_type, device_uuid=device_uuid)
+    log = DynamicApplicationLog(
+        key="FridaStart",
+        data="Starting frida server on device"
+    )
+    db.session.add(log)
+    db.session.commit()
     return jsonify({
         "status": result
     })
+
+
+@flask.route("/dynamic/api/logs", methods=["GET"])
+def get_logs_json():
+    """
+    Get device logs in JSON format
+    :return:
+    """
+    limit = 10
+    logs = DynamicApplicationLog.query.order_by(
+        DynamicApplicationLog.added.desc()
+    ).limit(limit).all()
+    get_logs = [log.readable() for log in logs]
+    return jsonify(get_logs)
 
 
 @flask.route("/dynamic/api/check_device_attached", methods=["GET"])
@@ -326,7 +414,7 @@ def list_adb_devices():
     Get a list of ADB devices
     There is probably a better way do this
     But I'm not here for your "you should do it like ..." comments
-    If you can do it better then do it yourself :)
+    If you can do it better than do it yourself :)
     :return:
     """
     adb_path = Config.adb_path
@@ -368,6 +456,22 @@ def adb_check_root_access_su(device_uuid, device_type):
     """
     return jsonify({
         "status": check_root(device_uuid, device_type)
+    })
+
+
+@flask.route("/dynamic/api/<device_uuid>/send/text", methods=["GET"])
+def adb_send_text(device_uuid):
+    """
+    Sends data to the device input
+    :param device_uuid:
+    :return:
+    """
+    send_keystroke(
+        device_uuid=device_uuid,
+        text=request.args.get("text")
+    )
+    return jsonify({
+        "status": True
     })
 
 

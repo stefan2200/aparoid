@@ -73,6 +73,7 @@
             <div id="tree"></div>
         </div>
         <div class="col-lg-9">
+            <button id="show-dl" class="btn btn-info btn-block mb-1" onclick="download_last_file();" type="button">Download <i class="fas fa-download"></i> </button>
             <div id="source"></div>
         </div>
     </div>
@@ -161,6 +162,12 @@ $("#tree").fancytree({
     }
   }
 });
+
+function download_last_file() {
+    if(!selected_file) return;
+    document.location = "{{ url_for('download_raw_file', app_id=app_id) }}?file=" + selected_file;
+}
+
 var node = $.ui.fancytree.getTree("#tree").getRootNode();
 var cmp = function(a, b) {
     var x = (a.folder ? "0" : "1") + a.title.toLowerCase(),
@@ -170,6 +177,7 @@ var cmp = function(a, b) {
 
 node.sortChildren(cmp, true);
 function on_source_load(source_data) {
+    $('#show-dl').show();
     $('#source').html('<pre><code>' + $("<div>").text(source_data.data).html() + '</code></pre>');
     hljs.highlightAll();
     window.scrollTo(0,0);
@@ -205,9 +213,11 @@ function patcher(selected_method) {
 }
 
 $(document).ready(function(){
+    $('#show-dl').hide();
     {% if selected_vuln %}
        $.getJSON("{{ url_for('get_raw_file', app_id=app_id) }}?file={{ selected_vuln.filename | urlencode }}", function(data) {
             on_source_load(data);
+            selected_file = '{{ selected_vuln.filename | urlencode }}';
             hljs.highlightLinesAll([
                 [{start: {{ selected_vuln.file_line }}, end: {{ selected_vuln.file_line }}, color: 'yellow'}]
             ]);

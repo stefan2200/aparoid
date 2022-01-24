@@ -205,7 +205,7 @@ def spawn_frida_application(device_uuid, application):
     :return:
     """
     frida_open = FridaUtils.get_device_with_id(device_uuid=device_uuid)
-    use_async = False
+    use_async = request.args.get("async", False)
 
     if not frida_open:
         return jsonify({
