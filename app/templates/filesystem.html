@@ -219,9 +219,9 @@ $(document).ready(function(){
             on_source_load(data);
             selected_file = '{{ selected_vuln.filename | urlencode }}';
             hljs.highlightLinesAll([
-                [{start: {{ selected_vuln.file_line }}, end: {{ selected_vuln.file_line }}, color: 'yellow'}]
+                [{start: {{ selected_vuln.file_line }}, end: {{ selected_vuln.file_line }}, color: 'rgba(255, 255, 0, 0.2)'}]
             ]);
-            go_to($("div[style*='yellow']"));
+            go_to($("div[style*='rgba(255, 255, 0, 0.2)']"));
         });
     {% endif %}
 });

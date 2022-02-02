@@ -116,6 +116,7 @@ def process(apk_file):
     common = {}
 
     common.update(dict(name=apk_file_data.application))
+    common.update(dict(real_name=apk_file_data.get_app_name()))
     common.update(dict(package=apk_file_data.packagename))
     common.update(dict(version_name=apk_file_data.version_name))
     common.update(dict(version_code=apk_file_data.version_code))
