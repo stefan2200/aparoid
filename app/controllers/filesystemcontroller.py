@@ -4,6 +4,7 @@ Like the ones in the /data/data/some.app.idk location
 """
 import os
 import json
+import string
 import secrets
 import tarfile
 import sqlite3

@@ -1,3 +1,9 @@
+## Version 0.1.15
+- Reworked AndroidManifest parser
+- Added checks for network Security Config
+- Switched to a less eye blinding yellow in the source code browser 
+- Added checks for missing v2 and/or v3 signatures
+
 ## Version 0.1.14
 - Option to send keystrokes or text as device input
 - Fixed Dockerfile on *nix systems

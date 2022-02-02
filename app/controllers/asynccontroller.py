@@ -84,7 +84,7 @@ def is_blacklisted(filename):
     allowed_resources = [
         ".json", ".js", ".properties", ".sh",
         ".so", "AndroidManifest.xml", ".bin",
-        ".html", "config.xml"
+        ".html", "config.xml", "network_security_config.xml"
     ]
     # a bit weird that I blocked any directory containing "/android/
     blocked_sources = [

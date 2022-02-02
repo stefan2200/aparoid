@@ -219,7 +219,7 @@ class ApplicationProcessor:
         seen_findings = []
         src_checker = FileRunner()
         try:
-            run_on_manifest = src_checker.check_manifest(self.source_location)
+            run_on_manifest = src_checker.check_manifest(self.source_location, apk_data)
             if run_on_manifest:
                 seen_findings = run_on_manifest
         except Exception as exception:
@@ -277,8 +277,15 @@ class ApplicationProcessor:
                 application_id=self.apk_checksum,
                 text="Cleaning directories"
             )
-
-            shutil.rmtree(self.source_location)
+            try:
+                shutil.rmtree(self.source_location)
+            except Exception as e:
+                Reporter.push_log(
+                    endpoint=self.endpoint,
+                    key="info:analysis.clean.failed",
+                    application_id=self.apk_checksum,
+                    text="Clean failed, there might be files left on the filesystem"
+                )
 
         Reporter.push_log(
             endpoint=self.endpoint,

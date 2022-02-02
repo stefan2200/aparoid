@@ -1,0 +1,66 @@
+{
+  "old_android": {
+    "key": "ext.manifest",
+    "text": "Old Android versions supported",
+    "description": "{name} (SDK {min_version}) is the minimal requirement for the application. This version is unsupported and may introduce additional security risks.",
+    "search_type": "single",
+    "severity": "warning",
+    "masvs": null
+  },
+  "backups_allowed": {
+    "key": "ext.allow_backup",
+    "text": "Cloud backups enabled",
+    "description": "The application has allowBackup enabled. This options allows the application data to be backed-up using cloud backups.",
+    "search_type": "single",
+    "severity": "warning",
+    "masvs": null
+  },
+  "debuggable": {
+    "key": "ext.debuggable_enabled",
+    "text": "Debuggable application",
+    "description": "The application has debuggable enabled. This options allows the application to be remotely debugged on non-rooted devices.",
+    "search_type": "single",
+    "severity": "warning",
+    "masvs": null
+  },
+  "exported": {
+    "key": "ext.exported",
+    "text": "Exported {key}",
+    "description": "The application is exporting the following {key}: {name}. This {key} can be opened from any application on the device and might increase attack surface.",
+    "search_type": "multi",
+    "severity": "info",
+    "masvs": null
+  },
+  "nsc_cleartext": {
+    "key": "ext.nsc_cleartext",
+    "text": "networkSecurityConfig unencrypted traffic allowed",
+    "description": "The networkSecurityConfig has cleartextTrafficPermitted set to true on one or more domains. This means that Android allows unencrypted connections.",
+    "search_type": "single",
+    "severity": "danger",
+    "masvs": null
+  },
+  "nsc_usertrust": {
+    "key": "ext.nsc_usertrust",
+    "text": "networkSecurityConfig trusts user certificates",
+    "description": "The networkSecurityConfig trusts certificates installed by the user. Which makes it vulnerable to easy Man-in-the-Middle attacks. This is a very dangerous setting to use in release builds.",
+    "search_type": "single",
+    "severity": "danger",
+    "masvs": null
+  },
+  "janus": {
+    "key": "ext.janus",
+    "text": "Application signed with only v1 signature",
+    "description": "Application that are signed only with v1 when installed on devices having android version(5.0–8.0) are vulnerable to Janus Vulnerability.",
+    "search_type": "single",
+    "severity": "warning",
+    "masvs": null
+  },
+  "no_v2": {
+    "key": "ext.badsign",
+    "text": "Application missing v3 signature",
+    "description": "The application is missing the v3 signature. This makes it vulnerable to the Janus attack on old android versions.",
+    "search_type": "single",
+    "severity": "info",
+    "masvs": null
+  }
+}

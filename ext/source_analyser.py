@@ -7,6 +7,8 @@ import os
 import logging
 import xml.etree.ElementTree as ET
 
+from ext.manifest import ManifestParser
+
 
 class FileRunner:
     """
@@ -105,157 +107,17 @@ class FileRunner:
                 return True
         return False
 
-    def get_data_from_sdk_version(self, sdk_version):
-        """
-        Get data from Android sdk version
-        :param sdk_version:
-        :return:
-        """
-        get_version_file = os.path.join(
-            os.path.dirname(__file__),
-            f"..{os.path.sep}",
-            "misc",
-            "android_versions.json"
-        )
-        if not os.path.exists(get_version_file):
-            print("Android version file not found, ignoring sdk version")
-        with open(get_version_file, "r", encoding="utf-8") as read_file:
-            get_versions = json.load(fp=read_file)
-        if sdk_version in dict(get_versions):
-            return get_versions[sdk_version]
-        return None
-
-    def check_manifest(self, root_location):
+    def check_manifest(self, root_location, apk_data):
         """
         Run some default checks on the manifest file
         :param root_location:
+        :param apk_data:
         :return:
         """
-        get_manifest = os.path.join(
-            root_location,
-            "resources",
-            "AndroidManifest.xml"
+
+        return ManifestParser(root_folder=root_location).parse(
+            application_data=apk_data
         )
-        if not os.path.exists(get_manifest):
-            return None
-        manifest_name = "resources/AndroidManifest.xml"
-        findings = []
-        with open(get_manifest, "r", encoding="utf-8") as read_manifest:
-            # remove namespaces because they are annoying
-            without_ns = re.sub(r'\sandroid:', ' ', read_manifest.read())
-            tree = ET.ElementTree(ET.fromstring(without_ns))
-        root_node = tree.getroot()
-
-        get_sdk = root_node.find("uses-sdk")
-        min_version = get_sdk.get("minSdkVersion", None)
-        if min_version:
-            check_version = self.get_data_from_sdk_version(min_version)
-            if check_version and check_version.get("supported") is False:
-                script = {
-                    "key": "ext.manifest",
-                    "text": "Old Android versions supported",
-                    "description": f"{check_version.get('name')} (SDK {min_version}) "
-                                   f"is the minimal requirement for the application. "
-                                   f"This version is unsupported and may "
-                                   f"introduce additional security risks.",
-                    "search_type": "single",
-                    "severity": "warning",
-                    "masvs": None
-                }
-                finding = self.finding_for(
-                    script=script,
-                    filename=manifest_name,
-                    highlight=f"android:minSdkVersion={min_version}",
-                    line_number=0
-                )
-                findings.append(finding)
-
-        get_application = root_node.find("application")
-        get_allow_backup = get_application.get("allowBackup", None)
-        if get_allow_backup and "true" in get_allow_backup:
-            script = {
-                "key": "ext.allow_backup",
-                "text": "Cloud backups enabled",
-                "description": "The application has allowBackup enabled. "
-                               "This options allows the application "
-                               "data to be backed-up using cloud backups.",
-                "search_type": "single",
-                "severity": "warning",
-                "masvs": None
-            }
-            finding = self.finding_for(
-                script=script,
-                filename=manifest_name,
-                highlight="android:allowBackup=true",
-                line_number=0
-            )
-            findings.append(finding)
-
-        get_allow_debug = get_application.get("debuggable", None)
-        if get_allow_debug and "true" in get_allow_debug:
-            script = {
-                "key": "ext.debuggable_enabled",
-                "text": "Debuggable application",
-                "description": "The application has debuggable enabled. "
-                               "This options allows the application to "
-                               "be remotely debugged on non-rooted devices.",
-                "search_type": "single",
-                "severity": "warning",
-                "masvs": None
-            }
-            finding = self.finding_for(
-                script=script,
-                filename=manifest_name,
-                highlight="android:debuggable=true",
-                line_number=0
-            )
-            findings.append(finding)
-
-        get_activities = get_application.findall("activity")
-        for activity in get_activities:
-            if "true" in activity.attrib.get("exported", ""):
-                script = {
-                    "key": "ext.exported_activity",
-                    "text": "Exported activity",
-                    "description": f"The application is exporting the following activity: "
-                                   f"{activity.attrib.get('name')}. This activity can be opened"
-                                   f" from any application on the device "
-                                   f"and might increase attack surface.",
-                    "search_type": "multi",
-                    "severity": "info",
-                    "masvs": None
-                }
-                finding = self.finding_for(
-                    script=script,
-                    filename=manifest_name,
-                    highlight=activity.attrib.get('name'),
-                    line_number=0
-                )
-                findings.append(finding)
-
-        get_services = get_application.findall("service")
-        for service in get_services:
-            if "true" in service.attrib.get("exported", ""):
-                script = {
-                    "key": "ext.exported_service",
-                    "text": "Exported service",
-                    "description": f"The application is exporting the following service: "
-                                   f"{service.attrib.get('name')}. This activity can be opened"
-                                   f" from any application on the device and "
-                                   f"might increase attack surface.",
-                    "search_type": "multi",
-                    "severity": "info",
-                    "masvs": None
-                }
-                finding = self.finding_for(
-                    script=script,
-                    filename=manifest_name,
-                    highlight=service.attrib.get('name'),
-                    line_number=0
-                )
-                findings.append(finding)
-
-        return findings
 
     def run_on_file(self, filename: str, file_contents: bytes):
         """
