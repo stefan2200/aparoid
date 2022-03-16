@@ -32,7 +32,6 @@
             <button class="btn btn-info btn-block" onclick="enable_proxy()">Enable device proxy</button>
             {% else %}
             <p class="text-success">Proxy server on device: {{ proxy_enabled }}</p>
-            <p class="text-success">ADB reverse forward device:8088->host:8088</p>
             <button class="btn btn-danger btn-block" onclick="disable_proxy()">Remove device proxy</button>
             {% endif %}
             <strong>Proxy request parser</strong>
