@@ -35,7 +35,7 @@ Local version
 sudo apt-get install python3 python3-pip sqlite3 default-jre android-tools-adb gunicorn libmagic1
 git clone https://github.com/stefan2200/aparoid
 cd aparoid
-python3 -m pip install --upgrade requirements.txt
+python3 -m pip install --upgrade -r requirements.txt
 
 # The python-magic-bin library is required on Windows
 python3 -m pip install python-magic-bin

@@ -1,3 +1,7 @@
+## Version 0.1.16
+- Updated jadx to the latest version (1.3.3)
+- Fixed a bug with the React Native script
+
 ## Version 0.1.15
 - Reworked AndroidManifest parser
 - Added checks for network Security Config

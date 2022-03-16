@@ -33,8 +33,9 @@ class ReactNativeStrategy:
         :return:
         """
         attempt_decompile = ReactNativeNiceifier(file_location=self.react_file)
-        self.output["react_source"] = attempt_decompile
-        return attempt_decompile.beautify()
+        decompile_result = attempt_decompile.beautify()
+        self.output["react_source"] = decompile_result
+        return decompile_result
 
 
 class ReactNativeNiceifier:
