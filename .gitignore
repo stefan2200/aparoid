@@ -10,3 +10,4 @@ ext/scripts/file_scripts-*
 ext/frida_scripts/frida-combined-*
 /dist/
 /aparoid.egg-info/
+/collector/pgdata/
