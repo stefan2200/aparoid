@@ -1,3 +1,6 @@
+## Version 0.1.17
+- Added additional rules for detection of secrets, keys and security misconfigurations
+
 ## Version 0.1.16
 - Updated jadx to the latest version (1.3.3)
 - Fixed a bug with the React Native script
