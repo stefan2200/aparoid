@@ -16,6 +16,8 @@
         <br />
         <strong>Android</strong>
         {{ device.android }} SDK {{ device.sdk }}
+        <br />
+        <a href="{{ url_for('logcat_get_data', device_id=device_uuid) }}" class="btn btn-block btn-success" target="_blank">Open logcat viewer</a>
     </div>
     <div class="col-lg-6 text-wrap">
         <h4>Frida</h4>

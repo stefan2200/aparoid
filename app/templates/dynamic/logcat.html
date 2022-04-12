@@ -1,0 +1,64 @@
+
+{% extends 'layout.html' %}
+{% block content %}
+
+<div class="card card-default">
+  <div class="card-header">
+     <div class="d-flex align-items-center">
+        <h3 class="mr-auto p-3">Logcat</h3>
+        <div class="btn-group col-sm-5" role="group">
+            <input class="form-control col-sm-5" placeholder="Search keyword" id="search" title="You can also change the search keyword during the stream action">
+            <button class="btn btn-primary" onclick="update(false);">Refresh <i class="fas fa-redo"></i> </button>
+            <button class="btn btn-danger"  style="margin-left: 1em" onclick="update(true);">Clear <i class="fas fa-trash"></i> </button>
+            <button class="btn btn-primary" style="margin-left: 1em" onclick="stream();">Stream <i class="fas fa-sync" id="set_spinner"></i></button>
+        </div>
+      </div>
+  </div>
+  <div class="card-body">
+      <pre id="output">
+{% for entry in log_data %}{{ entry }}
+{% endfor %}
+      </pre>
+  </div>
+</div>
+
+{% endblock %}
+{% block subscripts %}
+<script>
+var stream_timer = null;
+function stream() {
+    if(stream_timer) {
+        $('#set_spinner').removeClass('fa-spin');
+        clearTimeout(stream_timer);
+        stream_timer = null;
+    } else {
+        $('#set_spinner').addClass('fa-spin');
+        $('#output').html("");
+        stream_timer = setTimeout(update_async, 2000);
+    }
+}
+
+function update_async() {
+     var reload_url = '{{ url_for('logcat_get_data_stream', device_id=device_id) }}';
+     if ($('#search').val()) {
+        reload_url = reload_url + "?search=" + encodeURIComponent($('#search').val());
+     }
+     $.getJSON(reload_url, function(data) {
+        $.each(data, function(key, value) {
+            $('#output').append(value + "\n");
+        });
+     });
+     stream_timer = setTimeout(update_async, 2000);
+}
+
+function update(should_clear) {
+    var reload_url = '{{ url_for('logcat_get_data', device_id=device_id) }}';
+    if(should_clear){
+        reload_url = reload_url + "?clean=1";
+    } else if ($('#search').val()) {
+        reload_url = reload_url + "?search=" + encodeURIComponent($('#search').val());
+    }
+    document.location = reload_url;
+}
+</script>
+{% endblock %}

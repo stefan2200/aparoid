@@ -1,3 +1,8 @@
+## Version 0.1.18
+- Added logcat viewer / stream
+- Fixed a bug with dynamic filesystem data
+- Fixed styling issues with dynamic filesystem viewer
+
 ## Version 0.1.17
 - Added additional rules for detection of secrets, keys and security misconfigurations
 
