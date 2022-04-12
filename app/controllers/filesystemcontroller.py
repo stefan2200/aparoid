@@ -169,6 +169,7 @@ def read_fs_for(device_type, application):
         f"..{os.path.sep}",
         "cache"
     )
+    dir_name = os.path.abspath(dir_name)
     if not os.path.exists(dir_name):
         os.mkdir(dir_name)
     filename = secrets.token_hex(nbytes=16)
@@ -180,9 +181,14 @@ def read_fs_for(device_type, application):
         application_directory,
         "."
     ])
+    # For some reason this is very random, just do both.. should be fine right?
     adb_strategy.runner.pull(
         remote_file=f"/sdcard/{filename}.tar",
         local_file=os.path.join(dir_name, f"{filename}.tar")
+    )
+    adb_strategy.runner.pull(
+        local_file=f"/sdcard/{filename}.tar",
+        remote_file=os.path.join(dir_name, f"{filename}.tar")
     )
     adb_strategy.runner.shell([
         "rm",

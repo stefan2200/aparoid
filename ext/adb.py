@@ -129,11 +129,12 @@ class ADBStrategy:
         """
         return
 
-    def run(self, arguments: list):
+    def run(self, arguments: list, no_output=False):
         """
         Run adb with arguments
         Additionally, device id may be specified to use multiple devices
         :param arguments:
+        :param no_output:
         :return:
         """
         adb_path = Config.adb_path
@@ -151,8 +152,9 @@ class ADBStrategy:
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        logging.debug(proc.stdout.decode())
-        logging.debug(proc.stderr.decode())
+        if not no_output:
+            logging.debug(proc.stdout.decode())
+            logging.debug(proc.stderr.decode())
         return proc
 
 
@@ -672,6 +674,7 @@ def download_package(device_type, device_uuid, package_name, store_location):
         ["pm", "path", package_name]
     ).strip().replace("package:", "")
     strat.runner.pull(remote_file=get_apk, local_file=store_location)
+    strat.runner.pull(local_file=get_apk, remote_file=store_location)
 
 
 def install_package(device_type, device_uuid, store_location, second_attempt=False):
