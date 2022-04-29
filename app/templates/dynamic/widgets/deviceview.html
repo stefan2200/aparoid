@@ -1,0 +1,58 @@
+<div class="row mt-2">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <a class="card-link" data-toggle="collapse" href="#collapsedevice">
+                    Device control
+                </a>
+            </div>
+            <div id="collapsedevice" class="collapse show" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                        <strong>{{ application.name }} - {{ application.identifier }}</strong>
+                        <br />
+                        <button class="btn btn-secondary" onclick="spawn_application()">(Re)Spawn
+                            application
+                        </button><br />
+                            <input type="checkbox" id="kafka-running"> Report Frida output to Kafka
+                        <hr />
+                            <button class="btn btn-danger" onclick="kill_application()">Terminate application
+                        </button>
+                        <hr/>
+                        <div class="row mt-2 mb-2">
+                            <div class="col-md-6">
+                                <button type="button" onclick="screenshot()" class="btn btn-info">
+                                    Create screenshot <i class="fas fa-portrait"></i>
+                                </button>
+                            </div>
+                            <div class="col-md-6">
+                                <a href="{{ url_for('get_application_screenshots', application=application.identifier) }}"
+                                   target="_blank" class="btn btn-info">
+                                    View screenshots <i class="fas fa-images"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <a href="{{ url_for('read_fs_for', device_type=device_type, application=application.identifier) }}"
+                           target="_blank" class="btn btn-primary">Browse filesystem <i
+                                class="fas fa-folder"></i> </a>
+                        <a href="{{ url_for('get_frida_logs', application=application.identifier) }}" target="_blank"
+                           class="btn btn-primary">Frida logs</a>
+                        <hr />
+                        <div class="row mt-2 mb-2">
+                            <div class="col-md-10">
+                                <input class="form-control" id="send-text" placeholder="Send text to device">
+                            </div>
+                            <div class="col-md-2">
+                                <a href="#" onclick="send_text();" class="btn btn-info">
+                                    Send
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
