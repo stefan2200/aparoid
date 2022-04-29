@@ -1,3 +1,8 @@
+## Version 0.1.19
+- reworked dynamic analysis dashboard
+- Some bugfixes
+- Made code ready for indent/service testing features (0.1.20)
+
 ## Version 0.1.18
 - Added logcat viewer / stream
 - Fixed a bug with dynamic filesystem data

@@ -1,6 +1,6 @@
 {
     "name": "DyStr static file checks",
-    "version": 1.48,
+    "version": 1.49,
     "matches": [
         {
             "key": "src.writes_storage",
@@ -272,8 +272,8 @@
         },
         {
             "key": "src.values",
-            "text": "Information inside values.xml",
-            "description": "The values.xml file may contain sensitive information.",
+            "text": "Information inside values.xml / strings.xml",
+            "description": "The values.xml and strings.xml files may contain sensitive information.",
             "mobile_asvs": "Storage-14",
             "search_type": "multi",
             "severity": "info",

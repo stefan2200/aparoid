@@ -188,7 +188,7 @@ class ManifestParser:
                     script=self.finding_templates.get("exported"),
                     filename=self.manifest_filename,
                     line_number=0,
-                    highlight="debuggable",
+                    highlight=get_activity[1],
                     template_vars={"name": get_activity[1], "key": key}
                 )
                 activities.append(create_finding)
