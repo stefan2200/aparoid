@@ -14,7 +14,7 @@ class JTool:
     """
     Wrapper class
     """
-    jadx_version = "1.3.3"
+    jadx_version = "1.5.0"
     tools_directory = "tools"
     jadx_directory = "jadx"
     jadx_path_multi = ""

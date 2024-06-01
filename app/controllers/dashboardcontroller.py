@@ -43,9 +43,11 @@ def get_static_code_vulns(app_id):
             )
     if finding:
         stmt = stmt.filter(MobileFileFinding.name == finding)
-    sort_keys = {'none': 3, 'info': 2, 'warning': 1, 'danger': 0}
-    sort_logic = case(value=MobileFileFinding.severity, whens=sort_keys).label("severity")
-    stmt = stmt.order_by(sort_logic)
+    sort_keys = {"danger": 0, "warning": 1, "info": 2, "none": 3}
+    order_by_case = case(
+        *[(MobileFileFinding.severity == key, value) for key, value in sort_keys.items()]
+    )
+    stmt = stmt.order_by(order_by_case)
     groups = {}
     vulns = stmt.all()
     for vuln in vulns:
@@ -125,14 +127,18 @@ def get_apk_dashboard(app_id):
     )
     with open(perm_list, 'r', encoding="utf-8") as inf_json:
         output_perm = json.load(inf_json)
-    sort_keys = {'none': 3, 'info': 2, 'warning': 1, 'danger': 0}
-    sort_logic = case(value=MobileFileFinding.severity, whens=sort_keys).label("severity")
+
+    sort_keys = {"danger": 0, "warning": 1, "info": 2, "none": 3}
+    order_by_case = case(
+        *[(MobileFileFinding.severity == key, value) for key, value in sort_keys.items()]
+    )
+
     sub_stmt = db.session.query(
         MobileFile.id
     ).filter(MobileFile.application_id == app_id)
     stmt = db.session.query(
         MobileFileFinding
-    ).filter(MobileFileFinding.file_id.in_(sub_stmt)).order_by(sort_logic)
+    ).filter(MobileFileFinding.file_id.in_(sub_stmt)).order_by(order_by_case)
 
     unique_findings = {}
     severities = {
