@@ -70,6 +70,8 @@ def async_kill(app_id):
                 return True
         except psutil.AccessDenied:
             pass
+        except psutil.ZombieProcess:
+            pass
     return False
 
 
@@ -85,6 +87,8 @@ def async_is_running(app_id):
             if str(__file__) in cmdline and app_id in cmdline:
                 return process.pid
         except psutil.AccessDenied:
+            pass
+        except psutil.ZombieProcess:
             pass
     return False
 

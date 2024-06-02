@@ -24,7 +24,7 @@ def logcat_get_data(device_id):
     output_data = []
     if request.args.get("clean", None):
         get_stream.run(["logcat", "-c"])
-    log_data = get_stream.run(["logcat", "-d"], no_output=True).stdout.decode()
+    log_data = get_stream.run(["logcat", "-d"], no_output=True).stdout.decode(encoding="utf-8", errors="ignore")
     output_data = [x.strip() for x in log_data.split("\n")]
     # hide the spam headers
     output_data = [x for x in output_data if not x.startswith("---------")]
@@ -44,7 +44,7 @@ def logcat_get_data_stream(device_id):
     """
     get_stream = ADBStrategy()
     get_stream.device = device_id
-    log_data = get_stream.run(["logcat", "-d"], no_output=True).stdout.decode()
+    log_data = get_stream.run(["logcat", "-d"], no_output=True).stdout.decode(encoding="utf-8", errors="ignore")
     output_data = [x.strip() for x in log_data.split("\n")]
     output_data = [x for x in output_data if not x.startswith("---------")]
     keyword = request.args.get("search", None)
